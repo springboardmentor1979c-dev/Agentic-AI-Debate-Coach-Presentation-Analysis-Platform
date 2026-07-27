@@ -1,6 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
-
+from typing import Optional, List
 
 # =========================
 # USER REGISTRATION
@@ -30,6 +29,9 @@ class Profile(BaseModel):
     experience_level: str
     goals: str
     preferred_topics: str
+    presentation_domains: Optional[str] = ""
+    coaching_preferences: Optional[str] = ""
+    communication_skill_tracking: Optional[str] = ""
 
 
 # =========================
@@ -41,3 +43,25 @@ class ProfileUpdate(BaseModel):
     experience_level: Optional[str] = None
     goals: Optional[str] = None
     preferred_topics: Optional[str] = None
+    presentation_domains: Optional[str] = None
+    coaching_preferences: Optional[str] = None
+    communication_skill_tracking: Optional[str] = None
+
+
+# =========================
+# DEBATE SESSION
+# =========================
+
+class DebateSessionCreate(BaseModel):
+    topic: str
+    format: str
+    position: str
+    difficulty: str
+
+
+# =========================
+# TURN SUBMISSION
+# =========================
+
+class TurnSubmit(BaseModel):
+    content: str
