@@ -75,6 +75,14 @@ def generate_pdf_report(
         story.append(t)
         story.append(Spacer(1, 15))
 
+        if "avg_wpm" in scores and scores["avg_wpm"]:
+            story.append(Paragraph("Speech Delivery Metrics", h2_style))
+            story.append(Paragraph(f"Total Speaking Duration: {scores.get('total_duration', 0.0)} seconds", normal_style))
+            story.append(Paragraph(f"Total Spoken Words: {scores.get('total_words', 0)} words", normal_style))
+            story.append(Paragraph(f"Average Speaking Pace: {scores.get('avg_wpm', 0.0)} Words Per Minute (WPM)", normal_style))
+            story.append(Paragraph(f"Linguistic Filler Words: {scores.get('total_fillers', 0)} fillers detected", normal_style))
+            story.append(Spacer(1, 15))
+
         story.append(Paragraph("Coaching Recommendations", h2_style))
         for rec in recommendations:
             story.append(Paragraph(f"• {rec}", normal_style))

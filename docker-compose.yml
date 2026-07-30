@@ -26,19 +26,20 @@ services:
     container_name: debate-backend
     restart: always
     environment:
-      - DATABASE_URL=postgresql://debate_admin:debate_secure_password_123@db:5432/debate_coach
+      - DATABASE_URL=sqlite:////app/data/debate.db
+      - DATABASE_PATH=/app/data/debate.db
+      - AM_I_IN_A_DOCKER_CONTAINER=true
       - LLM_PROVIDER=mock
       - SECRET_KEY=infosysspringboard
     ports:
       - "8000:8000"
-    depends_on:
-      db:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 15s
       timeout: 5s
       retries: 3
+    volumes:
+      - backend-data:/app/data
 
   frontend:
     build:
@@ -55,3 +56,4 @@ services:
 
 volumes:
   pgdata:
+  backend-data:

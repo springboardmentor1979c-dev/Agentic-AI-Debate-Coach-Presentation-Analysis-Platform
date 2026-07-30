@@ -1,10 +1,23 @@
+import os
 import sqlite3
 
-DATABASE_NAME = "debate.db"
+DATABASE_PATH = os.environ.get("DATABASE_PATH")
+if not DATABASE_PATH:
+    db_url = os.environ.get("DATABASE_URL", "")
+    if db_url.startswith("sqlite:///"):
+        DATABASE_PATH = db_url.replace("sqlite:///", "")
+    elif os.path.exists("/app/data") or os.environ.get("AM_I_IN_A_DOCKER_CONTAINER") == "true":
+        DATABASE_PATH = "/app/data/debate.db"
+    else:
+        DATABASE_PATH = "debate.db"
 
+# Ensure the parent directory of the database file exists
+db_dir = os.path.dirname(DATABASE_PATH)
+if db_dir:
+    os.makedirs(db_dir, exist_ok=True)
 
 def get_db():
-    conn = sqlite3.connect(DATABASE_NAME)
+    conn = sqlite3.connect(DATABASE_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -252,6 +265,152 @@ def create_tables():
         )
         """
     )
+
+    # Migrate debate_turns to support audio recording path & duration
+    cursor.execute("PRAGMA table_info(debate_turns)")
+    columns = [col[1] for col in cursor.fetchall()]
+    if "audio_path" not in columns:
+        cursor.execute("ALTER TABLE debate_turns ADD COLUMN audio_path TEXT")
+    if "duration" not in columns:
+        cursor.execute("ALTER TABLE debate_turns ADD COLUMN duration REAL DEFAULT 0.0")
+
+    # Migrate performance_scores to support aggregate speech analytics metrics
+    cursor.execute("PRAGMA table_info(performance_scores)")
+    columns = [col[1] for col in cursor.fetchall()]
+    for col_name in ["total_duration", "total_words", "avg_wpm", "total_fillers"]:
+        if col_name not in columns:
+            cursor.execute(f"ALTER TABLE performance_scores ADD COLUMN {col_name} REAL")
+
+    # =========================================================
+    # NEW TABLES FOR ROLE-SPECIFIC WORKSPACES & TELEMETRY
+    # =========================================================
+
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS coach_learner_assignments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            coach_id INTEGER NOT NULL,
+            learner_id INTEGER NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (coach_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (learner_id) REFERENCES users(id) ON DELETE CASCADE,
+            UNIQUE(coach_id, learner_id)
+        )
+        """
+    )
+
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS classes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            educator_id INTEGER NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (educator_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+        """
+    )
+
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS class_members (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            class_id INTEGER NOT NULL,
+            learner_id INTEGER NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE,
+            FOREIGN KEY (learner_id) REFERENCES users(id) ON DELETE CASCADE,
+            UNIQUE(class_id, learner_id)
+        )
+        """
+    )
+
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS ai_request_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            provider TEXT NOT NULL,
+            model TEXT NOT NULL,
+            operation TEXT NOT NULL,
+            success INTEGER NOT NULL,
+            latency_ms INTEGER NOT NULL,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            error_category TEXT
+        )
+        """
+    )
+
+    # =========================
+    # COACH FEEDBACK TABLE
+    # =========================
+
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS coach_feedback (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            coach_id INTEGER NOT NULL,
+            learner_id INTEGER NOT NULL,
+            feedback_type TEXT NOT NULL DEFAULT 'general',
+            content TEXT NOT NULL,
+            exercises TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (coach_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (learner_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+        """
+    )
+
+    # =========================
+    # ACHIEVEMENTS TABLE
+    # =========================
+
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS achievements (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            type TEXT NOT NULL,
+            title TEXT NOT NULL,
+            description TEXT,
+            earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+        """
+    )
+
+    # Seed assignments and class associations for demo/development ease
+    cursor.execute("SELECT id FROM users WHERE role = 'Coach'")
+    coaches = [row[0] for row in cursor.fetchall()]
+    
+    cursor.execute("SELECT id FROM users WHERE role = 'Educator'")
+    educators = [row[0] for row in cursor.fetchall()]
+    
+    cursor.execute("SELECT id FROM users WHERE role = 'Learner'")
+    learners = [row[0] for row in cursor.fetchall()]
+
+    if coaches and learners:
+        for l_id in learners:
+            for c_id in coaches:
+                cursor.execute(
+                    "INSERT OR IGNORE INTO coach_learner_assignments (coach_id, learner_id) VALUES (?, ?)",
+                    (c_id, l_id)
+                )
+
+    if educators and learners:
+        for ed_id in educators:
+            cursor.execute("SELECT id FROM classes WHERE educator_id = ?", (ed_id,))
+            class_row = cursor.fetchone()
+            if not class_row:
+                cursor.execute("INSERT INTO classes (name, educator_id) VALUES (?, ?)", ("Debate & Presentation Class A", ed_id))
+                class_id = cursor.lastrowid
+            else:
+                class_id = class_row[0]
+                
+            for l_id in learners:
+                cursor.execute(
+                    "INSERT OR IGNORE INTO class_members (class_id, learner_id) VALUES (?, ?)",
+                    (class_id, l_id)
+                )
 
     conn.commit()
     conn.close()

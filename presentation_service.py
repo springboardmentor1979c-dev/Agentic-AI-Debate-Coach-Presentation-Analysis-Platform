@@ -31,7 +31,7 @@ def analyze_presentation_audio(audio_filepath: str) -> Dict[str, Any]:
         # Attempt to use whisper if installed
         import whisper
         logger.info("Initializing whisper speech recognition...")
-        model = whisper.load_model("base")
+        model = whisper.load_model("tiny")
         result = model.transcribe(audio_filepath)
         transcript = result.get("text", "")
     except Exception as e:

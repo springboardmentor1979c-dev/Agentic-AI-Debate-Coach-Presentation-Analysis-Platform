@@ -29,9 +29,43 @@ class LLMProvider:
             logger.warning("OPENAI_API_KEY is not set. Falling back to Mock LLM provider.")
             self.provider = "mock"
 
+    def _log_request(self, model: str, operation: str, success: int, latency_ms: int, error: str = None):
+        try:
+            from database import DATABASE_PATH
+            import sqlite3
+            conn = sqlite3.connect(DATABASE_PATH)
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                INSERT INTO ai_request_logs (provider, model, operation, success, latency_ms, error_category)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (self.provider, model, operation, success, latency_ms, error)
+            )
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            logger.error(f"Telemetry logging failed: {e}")
+
     def complete(self, prompt: str, system_prompt: str = "You are a helpful assistant.", json_mode: bool = False) -> str:
+        import time
+        start_time = time.time()
+        
+        operation = "general_completion"
+        if "fallacy" in prompt.lower():
+            operation = "fallacy_detection"
+        elif "analysis" in prompt.lower() or "claims" in prompt.lower():
+            operation = "argument_analysis"
+        elif "rebuttal" in prompt.lower() or "counterargument" in prompt.lower():
+            operation = "rebuttal_generation"
+        elif "coaching" in prompt.lower():
+            operation = "coaching_feedback"
+
+        model_name = self.groq_model if self.provider == "groq" else (self.openai_model if self.provider == "openai" else "mock-llama")
+
         if self.provider == "groq":
             if not self.groq_key or "PASTE_MY_NEW_GROQ_KEY_HERE" in self.groq_key:
+                self._log_request(model_name, operation, 0, 0, "Missing API Key")
                 raise HTTPException(status_code=500, detail="GROQ_API_KEY environment variable is missing or not set.")
             try:
                 from groq import Groq, APIConnectionError, RateLimitError, APIStatusError
@@ -54,24 +88,68 @@ class LLMProvider:
                 chat_completion = client.chat.completions.create(**kwargs)
                 response_text = chat_completion.choices[0].message.content
                 if not response_text:
+                    self._log_request(model_name, operation, 0, int((time.time() - start_time) * 1000), "Empty Response")
                     raise HTTPException(status_code=500, detail="Received empty response from AI provider.")
+                self._log_request(model_name, operation, 1, int((time.time() - start_time) * 1000))
                 return response_text
             except RateLimitError as e:
+                self._log_request(model_name, operation, 0, int((time.time() - start_time) * 1000), "RateLimitError")
                 logger.error(f"Groq API Rate Limit Exceeded: {e}")
                 raise HTTPException(status_code=429, detail="AI provider rate limit exceeded. Please try again later.")
             except APIStatusError as e:
+                self._log_request(model_name, operation, 0, int((time.time() - start_time) * 1000), f"APIStatusError:{e.status_code}")
                 logger.error(f"Groq API status error: {e.status_code} - {e.message}")
                 if e.status_code == 401:
                     raise HTTPException(status_code=401, detail="AI provider authentication failure.")
                 raise HTTPException(status_code=e.status_code, detail=f"AI provider error: {e.message}")
             except APIConnectionError as e:
+                self._log_request(model_name, operation, 0, int((time.time() - start_time) * 1000), "APIConnectionError")
                 logger.error(f"Groq API connection/network failure: {e}")
                 raise HTTPException(status_code=503, detail="AI provider connection failed. Please check network connectivity.")
             except HTTPException:
                 raise
             except Exception as e:
+                self._log_request(model_name, operation, 0, int((time.time() - start_time) * 1000), "UnexpectedError")
                 logger.error(f"Groq completion request failed: {e}")
                 raise HTTPException(status_code=500, detail="An unexpected error occurred during AI analysis.")
+
+    def complete_stream(self, prompt: str, system_prompt: str = "You are a helpful assistant."):
+        import time
+        model_name = self.groq_model if self.provider == "groq" else (self.openai_model if self.provider == "openai" else "mock-llama")
+        
+        if self.provider == "groq":
+            if not self.groq_key or "PASTE_MY_NEW_GROQ_KEY_HERE" in self.groq_key:
+                raise HTTPException(status_code=500, detail="GROQ_API_KEY environment variable is missing or not set.")
+            try:
+                from groq import Groq
+                client = Groq(api_key=self.groq_key)
+                messages = [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": prompt}
+                ]
+                chat_completion = client.chat.completions.create(
+                    model=self.groq_model,
+                    messages=messages,
+                    timeout=30.0,
+                    stream=True
+                )
+                for chunk in chat_completion:
+                    content = chunk.choices[0].delta.content
+                    if content:
+                        yield content
+                return
+            except Exception as e:
+                logger.error(f"Groq stream request failed: {e}")
+
+        # Fallback to mock streaming response
+        words = (
+            "While the affirmative position makes a compelling point regarding efficiency, it fails to account "
+            "for the equity implications. A policy focusing solely on rapid optimization disadvantages rural "
+            "communities lacking appropriate access infrastructure."
+        ).split(" ")
+        for word in words:
+            yield word + " "
+            time.sleep(0.04)
 
         if self.provider == "openai":
             try:
@@ -100,13 +178,16 @@ class LLMProvider:
                 with urllib.request.urlopen(req, timeout=30) as response:
                     res_body = response.read().decode("utf-8")
                     res_json = json.loads(res_body)
-                    return res_json["choices"][0]["message"]["content"]
+                    result_text = res_json["choices"][0]["message"]["content"]
+                    self._log_request(model_name, operation, 1, int((time.time() - start_time) * 1000))
+                    return result_text
             except Exception as e:
+                self._log_request(model_name, operation, 0, int((time.time() - start_time) * 1000), "OpenAIError")
                 logger.error(f"OpenAI completion request failed: {e}. Falling back to Mock response.")
-                # fall through to mock
 
-        # Mock LLM generation logic
-        return self._mock_completion(prompt, system_prompt, json_mode)
+        mock_res = self._mock_completion(prompt, system_prompt, json_mode)
+        self._log_request(model_name, operation, 1, int((time.time() - start_time) * 1000))
+        return mock_res
 
     def _mock_completion(self, prompt: str, system_prompt: str, json_mode: bool) -> str:
         # Check if the prompt suggests a specific schema response, e.g. Argument Analysis, Fallacy Detection, Rebuttal

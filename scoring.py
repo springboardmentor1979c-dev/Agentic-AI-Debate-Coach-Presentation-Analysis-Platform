@@ -77,14 +77,48 @@ def calculate_session_score(db_conn, session_id: int) -> Dict[str, Any]:
         (communication_skills * 0.15)
     )
 
+    # Fetch User turns to compute speech metrics
+    cursor.execute(
+        "SELECT content, duration FROM debate_turns WHERE session_id = ? AND speaker = 'User'",
+        (session_id,)
+    )
+    user_turns = cursor.fetchall()
+    
+    total_duration = 0.0
+    total_words = 0
+    total_fillers = 0
+    
+    import re
+    filler_words = ["um", "uh", "erm", "like", "you know", "basically", "actually"]
+    
+    for turn in user_turns:
+        total_duration += float(turn["duration"] or 0.0)
+        text = turn["content"]
+        words = re.findall(r'\b\w+\b', text.lower())
+        total_words += len(words)
+        for filler in filler_words:
+            matches = re.findall(r'\b' + re.escape(filler) + r'\b', text.lower())
+            total_fillers += len(matches)
+            
+    avg_wpm = 0.0
+    if total_duration > 0:
+        avg_wpm = (total_words / total_duration) * 60.0
+    elif total_words > 0:
+        total_duration = total_words / 2.5
+        avg_wpm = 150.0
+
     # Save to database
     cursor.execute(
         """
         INSERT OR REPLACE INTO performance_scores (
-            session_id, argument_quality, evidence_usage, logical_consistency, rebuttal_effectiveness, communication_skills, overall_score
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            session_id, argument_quality, evidence_usage, logical_consistency, rebuttal_effectiveness, 
+            communication_skills, overall_score, total_duration, total_words, avg_wpm, total_fillers
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
-        (session_id, arg_quality, evidence_usage, logical_consistency, rebuttal_effectiveness, communication_skills, overall_score)
+        (
+            session_id, arg_quality, evidence_usage, logical_consistency, rebuttal_effectiveness, 
+            communication_skills, overall_score, total_duration, total_words, avg_wpm, total_fillers
+        )
     )
     db_conn.commit()
 
@@ -94,5 +128,9 @@ def calculate_session_score(db_conn, session_id: int) -> Dict[str, Any]:
         "logical_consistency": round(logical_consistency, 1),
         "rebuttal_effectiveness": round(rebuttal_effectiveness, 1),
         "communication_skills": round(communication_skills, 1),
-        "overall_score": round(overall_score, 1)
+        "overall_score": round(overall_score, 1),
+        "total_duration": round(total_duration, 1),
+        "total_words": total_words,
+        "avg_wpm": round(avg_wpm, 1),
+        "total_fillers": total_fillers
     }

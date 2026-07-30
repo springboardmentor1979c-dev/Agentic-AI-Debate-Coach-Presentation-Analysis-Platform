@@ -10,7 +10,7 @@ class DebateOrchestrator:
     def __init__(self, db_conn):
         self.db = db_conn
 
-    def process_turn(self, session_id: int, user_content: str) -> Dict[str, Any]:
+    def process_turn(self, session_id: int, user_content: str, audio_path: str = None, duration: float = 0.0) -> Dict[str, Any]:
         """
         Agentic Workflow:
         1. Receive User Turn.
@@ -32,8 +32,8 @@ class DebateOrchestrator:
 
         # 1. Save user turn
         cursor.execute(
-            "INSERT INTO debate_turns (session_id, speaker, content) VALUES (?, 'User', ?)",
-            (session_id, user_content)
+            "INSERT INTO debate_turns (session_id, speaker, content, audio_path, duration) VALUES (?, 'User', ?, ?, ?)",
+            (session_id, user_content, audio_path, duration)
         )
         user_turn_id = cursor.lastrowid
 
@@ -122,6 +122,66 @@ class DebateOrchestrator:
             "ai_turn_id": ai_turn_id,
             "ai_content": ai_response
         }
+
+    def process_turn_stream(self, session_id: int, user_content: str, audio_path: str = None, duration: float = 0.0) -> Dict[str, Any]:
+        cursor = self.db.cursor()
+        cursor.execute(
+            "SELECT * FROM debate_sessions WHERE id = ?", (session_id,)
+        )
+        session = cursor.fetchone()
+        if not session:
+            raise ValueError("Session not found")
+
+        # 1. Save user turn
+        cursor.execute(
+            "INSERT INTO debate_turns (session_id, speaker, content, audio_path, duration) VALUES (?, 'User', ?, ?, ?)",
+            (session_id, user_content, audio_path, duration)
+        )
+        user_turn_id = cursor.lastrowid
+        self.db.commit()
+
+        # 2. Get Turn history to generate counterargument
+        cursor.execute(
+            "SELECT speaker, content FROM debate_turns WHERE session_id = ? ORDER BY id ASC",
+            (session_id,)
+        )
+        turns = cursor.fetchall()
+        history = [{"speaker": t["speaker"], "content": t["content"]} for t in turns]
+
+        strategies = ["Logical Rebuttal", "Evidence-Based Rebuttal", "Practical Counterargument", "Policy Counterargument"]
+        rebuttal_strategy = strategies[len(history) % len(strategies)]
+
+        history_str = "\n".join([f"{t['speaker']}: {t['content']}" for t in history[-4:]])
+        
+        prompt = f"""
+        You are an AI opponent in a debate practice session.
+        Topic: "{session["topic"]}"
+        User Position: "{session["position"]}" (You must advocate for the OPPOSING position).
+        Difficulty Level: {session["difficulty"]} (Beginner: simple claims, conversational. Intermediate: clear arguments with reasoning. Advanced: sophisticated rhetoric, challenging rebuttals).
+        Rebuttal Strategy: {rebuttal_strategy}
+        
+        Recent Turn History:
+        {history_str}
+        
+        Respond with your next turn. Keep the response to exactly 1 single concise paragraph (40-70 words max). Be direct, conversational, and focus on rebutting the user's points in a spoken format. Do not write essays or multiple paragraphs.
+        """
+
+        return {
+            "user_turn_id": user_turn_id,
+            "prompt": prompt,
+            "session": session
+        }
+
+    def save_ai_turn(self, session_id: int, ai_content: str) -> int:
+        cursor = self.db.cursor()
+        cursor.execute(
+            "INSERT INTO debate_turns (session_id, speaker, content) VALUES (?, 'AI', ?)",
+            (session_id, ai_content)
+        )
+        ai_turn_id = cursor.lastrowid
+        self.db.commit()
+        return ai_turn_id
+
 
 def json_dumps(obj: Any) -> str:
     import json

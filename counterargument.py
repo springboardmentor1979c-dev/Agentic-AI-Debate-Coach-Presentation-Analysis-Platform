@@ -21,13 +21,13 @@ def generate_counterargument(
     You are an AI opponent in a debate practice session.
     Topic: "{topic}"
     User Position: "{user_position}" (You must advocate for the OPPOSING position).
-    Difficulty Level: {difficulty} (Beginner: simple claims, conversational. Intermediate: clear arguments with reasoning. Advanced: sophisticated rhetoric, challenging rebuttals, deep critical analysis).
+    Difficulty Level: {difficulty} (Beginner: simple claims, conversational. Intermediate: clear arguments with reasoning. Advanced: sophisticated rhetoric, challenging rebuttals).
     Rebuttal Strategy: {rebuttal_type}
     
     Recent Turn History:
     {history_str}
     
-    Respond with your next turn. Keep the response to 2-3 concise paragraphs. Focus directly on answering the user's points and building your counter-case.
+    Respond with your next turn. Keep the response to exactly 1 single concise paragraph (40-70 words max). Be direct, conversational, and focus on rebutting the user's points in a spoken format. Do not write essays or multiple paragraphs.
     """
     
     response = ai_provider.complete(prompt, system_prompt="You are a focused, eloquent, and analytical debate opponent agent.")
