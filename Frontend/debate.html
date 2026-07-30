@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Debate Coach</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <h1>AI Debate Session</h1>
+
+        <p class="subtitle">
+            Enter your debate topic and arguments.
+        </p>
+
+        <input
+            type="text"
+            id="topic"
+            placeholder="Debate Topic">
+
+        <textarea
+            id="argument"
+            rows="6"
+            placeholder="Write your argument here..."></textarea>
+
+        <button onclick="submitDebate()">
+            Submit Debate
+        </button>
+
+        <button onclick="window.location.href='dashboard.html'">
+            Back to Dashboard
+        </button>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
