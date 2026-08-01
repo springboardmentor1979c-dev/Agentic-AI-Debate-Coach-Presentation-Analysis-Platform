@@ -40,6 +40,12 @@ Open the interactive API documentation at [http://127.0.0.1:8000/docs](http://12
 | `GET` | `/learner/dashboard` | Learner-only dashboard |
 | `GET` | `/guidance/learners` | Coach and educator guidance |
 | `GET` | `/admin/users` | Admin-only user list |
+| `GET` / `PUT` | `/skills` | Read and update communication skill scores |
+| `GET` / `POST` | `/learning-goals` | Manage personal learning goals |
+| `PATCH` | `/learning-goals/{goal_id}` | Mark a learning goal complete/incomplete |
+| `GET` / `POST` | `/debates` | Manage a user's debate history |
+| `GET` / `POST` | `/presentations` | Manage a user's presentation history |
+| `POST` | `/auth/oauth2/login` | OAuth2-style bearer-token login |
 
 ## Authentication
 

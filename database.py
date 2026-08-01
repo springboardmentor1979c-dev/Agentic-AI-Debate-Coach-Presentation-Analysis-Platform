@@ -34,6 +34,12 @@ def _add_column_if_missing(connection: sqlite3.Connection, column: str, definiti
         connection.execute(f"ALTER TABLE users ADD COLUMN {column} {definition}")
 
 
+def _add_profile_column_if_missing(connection: sqlite3.Connection, column: str, definition: str) -> None:
+    existing_columns = {row["name"] for row in connection.execute("PRAGMA table_info(user_profiles)")}
+    if column not in existing_columns:
+        connection.execute(f"ALTER TABLE user_profiles ADD COLUMN {column} {definition}")
+
+
 def initialize_database() -> None:
     """Create the current schema and safely upgrade the original users table."""
     with connection_scope() as connection:
@@ -46,6 +52,61 @@ def initialize_database() -> None:
                     CHECK (role IN ('Learner', 'Coach', 'Educator', 'Admin')),
                 email TEXT UNIQUE,
                 password_hash TEXT
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS communication_skills (
+                user_id INTEGER PRIMARY KEY,
+                clarity INTEGER NOT NULL DEFAULT 50 CHECK (clarity BETWEEN 0 AND 100),
+                confidence INTEGER NOT NULL DEFAULT 50 CHECK (confidence BETWEEN 0 AND 100),
+                argumentation INTEGER NOT NULL DEFAULT 50 CHECK (argumentation BETWEEN 0 AND 100),
+                rebuttal INTEGER NOT NULL DEFAULT 50 CHECK (rebuttal BETWEEN 0 AND 100),
+                delivery INTEGER NOT NULL DEFAULT 50 CHECK (delivery BETWEEN 0 AND 100),
+                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS learning_goals (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                target_date TEXT,
+                completed INTEGER NOT NULL DEFAULT 0 CHECK (completed IN (0, 1)),
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS debate_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                topic TEXT NOT NULL,
+                position TEXT NOT NULL,
+                score INTEGER CHECK (score BETWEEN 0 AND 100),
+                feedback TEXT,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS presentation_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                domain TEXT NOT NULL,
+                score INTEGER CHECK (score BETWEEN 0 AND 100),
+                feedback TEXT,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
             """
         )
@@ -66,3 +127,5 @@ def initialize_database() -> None:
             )
             """
         )
+        _add_profile_column_if_missing(connection, "presentation_domains", "TEXT NOT NULL DEFAULT '[]'")
+        _add_profile_column_if_missing(connection, "coaching_preference", "TEXT NOT NULL DEFAULT 'Self-guided'")

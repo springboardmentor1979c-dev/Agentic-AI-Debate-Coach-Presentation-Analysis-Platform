@@ -10,7 +10,8 @@ import secrets
 from typing import Callable, Literal
 
 from fastapi import Depends, FastAPI, HTTPException, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2PasswordBearer
 from pydantic import BaseModel, Field
 
 from database import connection_scope, initialize_database
@@ -22,8 +23,19 @@ JWT_SECRET = os.getenv("JWT_SECRET", "change-this-development-secret-before-prod
 JWT_ALGORITHM = "HS256"
 TOKEN_EXPIRY_MINUTES = 60
 security = HTTPBearer()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/oauth2/login")
 
 app = FastAPI(title="Learning Platform API")
+
+# The companion browser client may run from a different local port during
+# development. Keep the API accessible without weakening authenticated routes.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://127.0.0.1:5500", "http://localhost:5500", "http://127.0.0.1:5173", "http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class RegisterRequest(BaseModel):
@@ -43,6 +55,39 @@ class ProfileRequest(BaseModel):
     experience: str = Field(min_length=1, max_length=500)
     goals: str = Field(min_length=1, max_length=1000)
     preferred_topics: list[str] = Field(min_length=1)
+    presentation_domains: list[str] = Field(default_factory=list)
+    coaching_preference: str = Field(default="Self-guided", min_length=1, max_length=100)
+
+
+class SkillsRequest(BaseModel):
+    clarity: int = Field(ge=0, le=100)
+    confidence: int = Field(ge=0, le=100)
+    argumentation: int = Field(ge=0, le=100)
+    rebuttal: int = Field(ge=0, le=100)
+    delivery: int = Field(ge=0, le=100)
+
+
+class GoalRequest(BaseModel):
+    title: str = Field(min_length=1, max_length=200)
+    target_date: str | None = Field(default=None, max_length=20)
+
+
+class GoalUpdateRequest(BaseModel):
+    completed: bool
+
+
+class DebateRequest(BaseModel):
+    topic: str = Field(min_length=1, max_length=300)
+    position: str = Field(min_length=1, max_length=100)
+    score: int | None = Field(default=None, ge=0, le=100)
+    feedback: str | None = Field(default=None, max_length=2000)
+
+
+class PresentationRequest(BaseModel):
+    title: str = Field(min_length=1, max_length=300)
+    domain: str = Field(min_length=1, max_length=150)
+    score: int | None = Field(default=None, ge=0, le=100)
+    feedback: str | None = Field(default=None, max_length=2000)
 
 
 def _b64encode(value: bytes) -> str:
@@ -135,16 +180,24 @@ def login(request: LoginRequest):
     return {"access_token": create_access_token(user["id"], user["role"]), "token_type": "bearer", "role": user["role"]}
 
 
+@app.post("/auth/oauth2/login")
+def oauth2_login(request: LoginRequest):
+    """OAuth2-compatible bearer-token login for browser and API clients."""
+    return login(request)
+
+
 @app.put("/profile")
 def create_or_update_profile(request: ProfileRequest, user: dict = Depends(get_current_user)):
     topics = json.dumps(request.preferred_topics)
+    domains = json.dumps(request.presentation_domains)
     with connection_scope() as connection:
         connection.execute(
-            """INSERT INTO user_profiles (user_id, name, experience, goals, preferred_topics)
-               VALUES (?, ?, ?, ?, ?)
+            """INSERT INTO user_profiles (user_id, name, experience, goals, preferred_topics, presentation_domains, coaching_preference)
+               VALUES (?, ?, ?, ?, ?, ?, ?)
                ON CONFLICT(user_id) DO UPDATE SET name=excluded.name, experience=excluded.experience,
-               goals=excluded.goals, preferred_topics=excluded.preferred_topics""",
-            (user["id"], request.name, request.experience, request.goals, topics),
+               goals=excluded.goals, preferred_topics=excluded.preferred_topics,
+               presentation_domains=excluded.presentation_domains, coaching_preference=excluded.coaching_preference""",
+            (user["id"], request.name, request.experience, request.goals, topics, domains, request.coaching_preference),
         )
     payload = request.model_dump() if hasattr(request, "model_dump") else request.dict()
     return {"user_id": user["id"], **payload}
@@ -153,12 +206,89 @@ def create_or_update_profile(request: ProfileRequest, user: dict = Depends(get_c
 @app.get("/profile")
 def read_profile(user: dict = Depends(get_current_user)):
     with connection_scope() as connection:
-        profile = connection.execute("SELECT name, experience, goals, preferred_topics FROM user_profiles WHERE user_id = ?", (user["id"],)).fetchone()
+        profile = connection.execute("SELECT name, experience, goals, preferred_topics, presentation_domains, coaching_preference FROM user_profiles WHERE user_id = ?", (user["id"],)).fetchone()
     if profile is None:
         raise HTTPException(status_code=404, detail="Profile not found")
     result = dict(profile)
     result["preferred_topics"] = json.loads(result["preferred_topics"])
+    result["presentation_domains"] = json.loads(result["presentation_domains"])
     return result
+
+
+@app.get("/skills")
+def read_skills(user: dict = Depends(get_current_user)):
+    with connection_scope() as connection:
+        skills = connection.execute("SELECT clarity, confidence, argumentation, rebuttal, delivery, updated_at FROM communication_skills WHERE user_id = ?", (user["id"],)).fetchone()
+        if skills is None:
+            connection.execute("INSERT INTO communication_skills (user_id) VALUES (?)", (user["id"],))
+            skills = connection.execute("SELECT clarity, confidence, argumentation, rebuttal, delivery, updated_at FROM communication_skills WHERE user_id = ?", (user["id"],)).fetchone()
+    return dict(skills)
+
+
+@app.put("/skills")
+def update_skills(request: SkillsRequest, user: dict = Depends(get_current_user)):
+    values = request.model_dump() if hasattr(request, "model_dump") else request.dict()
+    with connection_scope() as connection:
+        connection.execute(
+            """INSERT INTO communication_skills (user_id, clarity, confidence, argumentation, rebuttal, delivery, updated_at)
+               VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+               ON CONFLICT(user_id) DO UPDATE SET clarity=excluded.clarity, confidence=excluded.confidence,
+               argumentation=excluded.argumentation, rebuttal=excluded.rebuttal, delivery=excluded.delivery,
+               updated_at=CURRENT_TIMESTAMP""",
+            (user["id"], values["clarity"], values["confidence"], values["argumentation"], values["rebuttal"], values["delivery"]),
+        )
+    return values
+
+
+@app.get("/learning-goals")
+def list_learning_goals(user: dict = Depends(get_current_user)):
+    with connection_scope() as connection:
+        return [dict(row) for row in connection.execute("SELECT id, title, target_date, completed, created_at FROM learning_goals WHERE user_id = ? ORDER BY completed, id DESC", (user["id"],))]
+
+
+@app.post("/learning-goals", status_code=status.HTTP_201_CREATED)
+def create_learning_goal(request: GoalRequest, user: dict = Depends(get_current_user)):
+    with connection_scope() as connection:
+        cursor = connection.execute("INSERT INTO learning_goals (user_id, title, target_date) VALUES (?, ?, ?)", (user["id"], request.title, request.target_date))
+        goal = connection.execute("SELECT id, title, target_date, completed, created_at FROM learning_goals WHERE id = ?", (cursor.lastrowid,)).fetchone()
+    return dict(goal)
+
+
+@app.patch("/learning-goals/{goal_id}")
+def update_learning_goal(goal_id: int, request: GoalUpdateRequest, user: dict = Depends(get_current_user)):
+    with connection_scope() as connection:
+        cursor = connection.execute("UPDATE learning_goals SET completed = ? WHERE id = ? AND user_id = ?", (int(request.completed), goal_id, user["id"]))
+    if cursor.rowcount == 0:
+        raise HTTPException(status_code=404, detail="Learning goal not found")
+    return {"id": goal_id, "completed": request.completed}
+
+
+@app.get("/debates")
+def list_debates(user: dict = Depends(get_current_user)):
+    with connection_scope() as connection:
+        return [dict(row) for row in connection.execute("SELECT id, topic, position, score, feedback, created_at FROM debate_history WHERE user_id = ? ORDER BY id DESC", (user["id"],))]
+
+
+@app.post("/debates", status_code=status.HTTP_201_CREATED)
+def create_debate(request: DebateRequest, user: dict = Depends(get_current_user)):
+    with connection_scope() as connection:
+        cursor = connection.execute("INSERT INTO debate_history (user_id, topic, position, score, feedback) VALUES (?, ?, ?, ?, ?)", (user["id"], request.topic, request.position, request.score, request.feedback))
+        row = connection.execute("SELECT id, topic, position, score, feedback, created_at FROM debate_history WHERE id = ?", (cursor.lastrowid,)).fetchone()
+    return dict(row)
+
+
+@app.get("/presentations")
+def list_presentations(user: dict = Depends(get_current_user)):
+    with connection_scope() as connection:
+        return [dict(row) for row in connection.execute("SELECT id, title, domain, score, feedback, created_at FROM presentation_history WHERE user_id = ? ORDER BY id DESC", (user["id"],))]
+
+
+@app.post("/presentations", status_code=status.HTTP_201_CREATED)
+def create_presentation(request: PresentationRequest, user: dict = Depends(get_current_user)):
+    with connection_scope() as connection:
+        cursor = connection.execute("INSERT INTO presentation_history (user_id, title, domain, score, feedback) VALUES (?, ?, ?, ?, ?)", (user["id"], request.title, request.domain, request.score, request.feedback))
+        row = connection.execute("SELECT id, title, domain, score, feedback, created_at FROM presentation_history WHERE id = ?", (cursor.lastrowid,)).fetchone()
+    return dict(row)
 
 
 @app.get("/learner/dashboard")
@@ -176,4 +306,27 @@ def learner_guidance(user: dict = Depends(require_roles("Coach", "Educator"))):
 @app.get("/admin/users")
 def list_users(_: dict = Depends(require_roles("Admin"))):
     with connection_scope() as connection:
-        return [dict(row) for row in connection.execute("SELECT id, name, email, role FROM users")]
+            return [dict(row) for row in connection.execute("SELECT id, name, email, role FROM users")]
+
+
+ROLE_VISIBILITY = {
+    "Admin": ("Learner", "Coach", "Educator"),
+    "Educator": ("Learner", "Coach"),
+    "Coach": ("Learner",),
+}
+
+
+@app.get("/management/overview")
+def management_overview(user: dict = Depends(require_roles("Admin", "Educator", "Coach"))):
+    """Show each management role the accounts in the levels below it."""
+    visible_roles = ROLE_VISIBILITY[user["role"]]
+    placeholders = ", ".join("?" for _ in visible_roles)
+    with connection_scope() as connection:
+        users = [dict(row) for row in connection.execute(
+            f"SELECT id, name, email, role FROM users WHERE role IN ({placeholders}) ORDER BY role, name",
+            visible_roles,
+        )]
+    counts = {role: 0 for role in visible_roles}
+    for account in users:
+        counts[account["role"]] += 1
+    return {"viewer_role": user["role"], "counts": counts, "users": users}
