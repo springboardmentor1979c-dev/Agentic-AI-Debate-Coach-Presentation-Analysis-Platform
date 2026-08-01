@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#08172f" />
+    <title>Orator — AI Debate Coach</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <style>body{background:#0b1f4a url("assets/calm-glass-background.png") center center/cover fixed no-repeat}.aurora,.grain{opacity:.12}.glass{background:linear-gradient(135deg,rgba(14,38,72,.72),rgba(8,26,54,.48))}</style>
+  </head>
+  <body>
+    <div class="aurora aurora-one"></div><div class="aurora aurora-two"></div><div class="grain"></div>
+    <main class="shell">
+      <header class="topbar glass">
+        <a class="brand" href="#" aria-label="Orator home"><span class="brand-mark">O</span><span>ORATOR</span></a>
+        <div class="api-status"><i></i><span id="apiStatus">API ready at 127.0.0.1:8000</span></div>
+        <button class="text-button" id="signOutBtn" hidden>Sign out</button>
+      </header>
+
+      <section class="auth-view" id="authView">
+        <div class="hero-copy">
+          <p class="eyebrow">PRESENT WITH INTENTION</p>
+          <h1>Find your <em>strongest</em> argument.</h1>
+          <p class="lede">A focused practice space for sharper thinking, clearer speaking, and confident debate.</p>
+          <div class="hero-metrics"><div><strong>01</strong><span>Profile-led<br />practice</span></div><div><strong>∞</strong><span>Better ways<br />to make your case</span></div></div>
+        </div>
+        <div class="auth-card glass">
+          <div class="auth-tabs"><button class="active" data-tab="login">Welcome back</button><button data-tab="register">Create account</button></div>
+          <form id="loginForm" class="form active">
+            <h2>Step back into the room.</h2><p>Sign in to continue your practice.</p>
+            <label>Email<input type="email" name="email" placeholder="you@example.com" required /></label>
+            <label>Password<input type="password" name="password" placeholder="••••••••" minlength="8" required /></label>
+            <button class="primary-button" type="submit">Enter your studio <span>→</span></button>
+          </form>
+          <form id="registerForm" class="form">
+            <h2>Build your practice room.</h2><p>Start with the role that fits you today.</p>
+            <label>Full name<input type="text" name="name" placeholder="Your name" required /></label>
+            <label>Email<input type="email" name="email" placeholder="you@example.com" required /></label>
+            <label>Password<input type="password" name="password" placeholder="At least 8 characters" minlength="8" required /></label>
+            <label>I'm joining as<select name="role"><option>Learner</option><option>Coach</option><option>Educator</option><option>Admin</option></select></label>
+            <button class="primary-button" type="submit">Create my space <span>→</span></button>
+          </form>
+          <p class="form-message" id="formMessage" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="app-view" id="appView" hidden>
+        <div class="dashboard-heading"><div><p class="eyebrow" id="roleLabel">YOUR PRACTICE SPACE</p><h1 id="welcomeTitle">Welcome back.</h1></div><button class="outline-button" id="editProfileBtn">Edit profile</button></div>
+        <div class="dashboard-grid">
+          <article class="focus-card glass"><p class="card-kicker">CURRENT FOCUS</p><h2 id="focusTitle">Build your speaker profile</h2><p id="focusBody">Tell us where you are and where you want to go. Your practice room will take shape around it.</p><button class="primary-button compact" id="focusAction">Set up profile <span>→</span></button><div class="orbital"><span></span><span></span><span></span></div></article>
+          <div class="right-stack">
+            <article class="welcome-card glass"><p class="card-kicker">ACCESS STATUS</p><div class="status-line"><span class="status-dot"></span><span id="accessMessage">Connected to your studio</span></div><p class="muted" id="emailText"></p></article>
+            <article class="role-card glass"><p class="card-kicker">YOUR ROLE</p><h3 id="roleCard">Learner</h3><p id="roleDescription">Shape your voice through deliberate practice.</p></article>
+          </div>
+        </div>
+        <article class="profile-card glass" id="profileSummary" hidden><div><p class="card-kicker">YOUR SPEAKER PROFILE</p><h2 id="profileName"></h2></div><div class="profile-details"><div><span>Experience</span><strong id="profileExperience"></strong></div><div><span>Goals</span><strong id="profileGoals"></strong></div><div><span>Topics</span><strong id="profileTopics"></strong></div></div></article>
+      </section>
+    </main>
+
+    <dialog class="profile-dialog glass" id="profileDialog"><form method="dialog" id="profileForm"><div class="dialog-header"><div><p class="eyebrow">SPEAKER PROFILE</p><h2>Shape your practice.</h2></div><button class="close-button" type="button" value="cancel" aria-label="Close">×</button></div><label>How should we address you?<input name="name" required /></label><label>Your experience<textarea name="experience" placeholder="For example: New to formal debate, comfortable presenting at work…" required></textarea></label><label>What are you working toward?<textarea name="goals" placeholder="For example: Speak more persuasively in a panel discussion…" required></textarea></label><label>Preferred topics <small>Separate with commas</small><input name="topics" placeholder="Technology, ethics, climate" required /></label><button class="primary-button" type="submit">Save my profile <span>→</span></button><p class="form-message" id="profileMessage"></p></form></dialog>
+    <script src="app.js"></script>
+  </body>
+</html>
