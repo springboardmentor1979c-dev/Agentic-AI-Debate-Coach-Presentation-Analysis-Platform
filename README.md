@@ -1,182 +1,431 @@
 <p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&height=250&color=0:134E5E,50:2ECC71,100:A8E063&text=AI%20DEBATE%20&%20PRESENTATION%20COACH&fontSize=55&fontColor=ffffff&animation=fadeIn&fontAlignY=40"/>
+  <img src="https://capsule-render.vercel.app/api?type=waving&height=260&color=0:134E5E,50:2ECC71,100:A8E063&text=Agentic%20AI%20Debate%20Coach&fontSize=52&fontColor=ffffff&animation=fadeIn&fontAlignY=38"/>
 </p>
 
-# 🎤 Agentic AI Debate Coach and Presentation Analysis Platform
+<div align="center">
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat-square)](#)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.109.0-009688.svg?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
-[![React](https://img.shields.io/badge/React-19.0.0-61DAFB.svg?style=flat-square&logo=react)](https://react.dev)
-[![Docker](https://img.shields.io/badge/Docker-Orchestrated-2496ED.svg?style=flat-square&logo=docker)](https://www.docker.com)
+# 🎤 Agentic AI Debate Coach & Presentation Analysis Platform
 
-An AI-powered coaching and evaluation platform that assists users in improving their debate strategy, public speaking, argumentation structure, and logical consistency.
+### AI-powered platform for debate training, argument intelligence, public speaking analysis, and personalized communication coaching.
 
-This repository holds the complete monorepo implementation covering:
-* **Week 1 Foundation Architecture**: DB schemas, JWT authentication, user experience profiles, and session CRUD.
-* **Week 2 Argument Analysis Engine**: Claims/premises extraction, fallacy classifications, and AI rewrite optimizer.
-* **Week 3 Debate Simulation & Coaching**: Multi-round interactive arenas, AI stance generation, and coaching recommendations.
-* **Milestone 4 Presentation & Speech/Video Analytics**: Vocal pacing (WPM), speech pause metrics, posture tracking, and PDF/CSV reports export.
+<p>
 
----
+![Python](https://img.shields.io/badge/Python-3.12-blue?style=for-the-badge&logo=python)
+![FastAPI](https://img.shields.io/badge/FastAPI-Latest-009688?style=for-the-badge&logo=fastapi)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react)
+![TailwindCSS](https://img.shields.io/badge/Tailwind-v4-38BDF8?style=for-the-badge&logo=tailwindcss)
+![LangGraph](https://img.shields.io/badge/LangGraph-Agentic_AI-green?style=for-the-badge)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)
 
-## 🛠️ Tech Stack & Architecture
+</p>
 
-### Backend Core
-- **FastAPI**: Python high-performance API server.
-- **SQLAlchemy ORM**: Seamless PostgreSQL database management.
-- **LangChain & LangGraph**: Agentic workflow orchestration.
-- **Bcrypt**: Standard, direct hashing.
-- **ReportLab**: PDF report generation streams.
+**Transform every debate, presentation, and speech into measurable improvement using Agentic AI.**
 
-### Frontend Dashboard
-- **React 19 & Vite**: Hot-reloading module bundler.
-- **Tailwind CSS v4**: Ultra-modern component styling.
-- **Framer Motion**: Smooth animations.
-- **Lucide Icons**: Clean, scalable icons.
-
-### DevOps & CI/CD
-- **Docker Compose**: Multi-container stack orchestration.
-- **Nginx**: Serving compiled React Single Page Application.
-- **GitHub Actions**: Automated validation pipelines on check-in.
+</div>
 
 ---
 
-## 📂 Folder Structure
+# 🚀 Overview
+
+The **Agentic AI Debate Coach** is an intelligent communication platform designed to help users develop stronger arguments, improve public speaking skills, practice structured debates, and receive actionable AI-driven coaching.
+
+Rather than simply evaluating a speech, the platform functions as an **interactive AI mentor** that understands reasoning, identifies logical weaknesses, simulates debate opponents, analyzes delivery, and provides personalized improvement strategies.
+
+Whether preparing for competitive debates, interviews, presentations, or classroom discussions, users receive comprehensive feedback covering both **content quality** and **presentation effectiveness**.
+
+---
+
+# ✨ Core Features
+
+## 🧠 AI Argument Intelligence
+
+- Automatic claim extraction
+- Premise identification
+- Supporting evidence detection
+- Logical consistency evaluation
+- Argument structure visualization
+- AI-powered argument rewriting
+- Persuasiveness scoring
+- Clarity and relevance analysis
+
+---
+
+## ⚖️ Logical Fallacy Detection
+
+Automatically identifies reasoning flaws including:
+
+- Strawman
+- Ad Hominem
+- Slippery Slope
+- False Cause
+- Circular Reasoning
+- False Dilemma
+- Appeal to Emotion
+- Hasty Generalization
+- Red Herring
+- Bandwagon
+
+Each detected fallacy includes explanations and suggested corrections.
+
+---
+
+## 🎭 Interactive Debate Arena
+
+Practice against an intelligent AI opponent capable of generating realistic counterarguments.
+
+Features include:
+
+- Multiple debate formats
+- Adjustable difficulty levels
+- Multi-round debates
+- Dynamic AI responses
+- Rebuttal evaluation
+- Live coaching suggestions
+- End-of-session performance reports
+
+---
+
+## 🎙️ Presentation Analytics
+
+Upload presentation recordings for comprehensive communication analysis.
+
+Includes:
+
+- Words Per Minute (WPM)
+- Speaking pace analysis
+- Pause distribution
+- Filler word detection
+- Eye contact estimation
+- Posture tracking
+- Confidence indicators
+- Vocal delivery metrics
+- Exportable performance reports
+
+---
+
+## 📊 Performance Dashboard
+
+Track long-term growth with personalized analytics.
+
+- Debate history
+- Communication score trends
+- Argument quality progression
+- Presentation improvements
+- Personalized recommendations
+- Learning insights
+
+---
+
+# 🏗 Architecture
 
 ```
+                    +----------------------+
+                    |   React Frontend     |
+                    +----------+-----------+
+                               |
+                        REST API / JWT
+                               |
+                    +----------v-----------+
+                    |      FastAPI         |
+                    +----------+-----------+
+                               |
+             +-----------------+------------------+
+             |                                    |
+     AI Workflow Engine                  Database Layer
+      (LangGraph)                      (SQLAlchemy ORM)
+             |                                    |
+   +---------+---------+                 PostgreSQL / SQLite
+   |                   |
+Argument Analysis   Presentation AI
+Debate Simulation   Report Generation
+```
+
+---
+
+# ⚡ Technology Stack
+
+## Backend
+
+- FastAPI
+- SQLAlchemy
+- PostgreSQL
+- SQLite (Development)
+- JWT Authentication
+- Bcrypt
+- ReportLab
+
+---
+
+## AI Stack
+
+- LangChain
+- LangGraph
+- LLM Prompt Engineering
+- Rule-based Fallacy Detection
+- Agentic Workflow Orchestration
+
+---
+
+## Frontend
+
+- React 19
+- Vite
+- Tailwind CSS v4
+- Framer Motion
+- Lucide Icons
+
+---
+
+## DevOps
+
+- Docker
+- Docker Compose
+- GitHub Actions
+- Nginx
+
+---
+
+# 📁 Project Structure
+
+```text
 debate-coach/
-├── .github/
-│   └── workflows/
-│       └── ci.yml            # CI GitHub Actions
-├── backend/                  # FastAPI Backend Service
+│
+├── backend/
 │   ├── app/
-│   │   ├── api/              # Routers (auth, profile, debates, analysis, debate, presentation)
-│   │   ├── core/             # Configuration & Security (JWT, dependencies)
-│   │   ├── database/         # Database sessions & SQLite fallbacks
-│   │   ├── models/           # SQLAlchemy database schemas
-│   │   ├── schemas/          # Pydantic v2 schemas
-│   │   ├── ai/               # AI Engine
-│   │   │   ├── prompts/      # System prompts & structures
-│   │   │   ├── models/       # Prompt schemas
-│   │   │   ├── utils/        # LLM client & Mock fallback
-│   │   │   ├── workflow/     # LangGraph state workflow graphs
-│   │   │   ├── argument_analysis/  # Fallacies & extractor engines
-│   │   │   └── presentation_analysis/ # Video & audio processors
-│   │   └── main.py           # Entrypoint
-│   ├── tests/                # Automated pytest unit/integration tests
-│   └── requirements.txt      # Python dependencies
-├── frontend/                 # React Frontend Service (Vite + Tailwind v4)
+│   │   ├── api/
+│   │   ├── ai/
+│   │   ├── core/
+│   │   ├── database/
+│   │   ├── models/
+│   │   ├── schemas/
+│   │   └── main.py
+│   │
+│   ├── tests/
+│   └── requirements.txt
+│
+├── frontend/
 │   ├── src/
-│   │   ├── components/       # Reusable UI elements (Navbar, Sidebar)
-│   │   ├── pages/            # View Pages (Landing, Login, Register, DebateArena, ArgumentAnalysis, PresentationAnalysis, PerformanceDashboard, AdminDashboard)
-│   │   ├── routes/           # React Router config (AppRoutes)
-│   │   └── App.jsx           # App entrypoint
-│   ├── Dockerfile            # Frontend production container configuration
-│   └── nginx.conf            # Nginx config serving SPA
-├── docker-compose.yml        # Docker Multi-container Orchestrator
-└── README.md                 # Project Documentation
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── routes/
+│   │   └── App.jsx
+│   │
+│   ├── Dockerfile
+│   └── nginx.conf
+│
+├── docker-compose.yml
+└── README.md
 ```
 
 ---
 
-## ⚙️ Installation & Running Locally
+# 🚀 Quick Start
 
-### Option 1: Docker (Recommended)
-Build and run the entire stack (PostgreSQL + Backend + Frontend) using Docker:
+## Clone Repository
+
+```bash
+git clone https://github.com/yourusername/debate-coach.git
+
+cd debate-coach
+```
+
+---
+
+## Docker Deployment
+
 ```bash
 docker compose up --build
 ```
-* **Frontend**: `http://localhost:3000`
-* **Backend API Docs**: `http://localhost:8000/docs`
 
-### Option 2: Running Services Individually
+Application URLs
 
-#### 1. Setup Backend
-1. Initialize virtual environment:
-   ```bash
-   python -m venv venv
-   .\venv\Scripts\activate      # On Windows
-   source venv/bin/activate    # On Unix/macOS
-   ```
-2. Install dependencies:
-   ```bash
-   pip install -r backend/requirements.txt
-   ```
-3. Run the API server:
-   ```bash
-   $env:PYTHONPATH="."          # Windows PowerShell
-   python backend/app/main.py
-   ```
-   * *Note*: If no local PostgreSQL is active on port `5432`, the server automatically falls back to an SQLite database `test.db` for development ease.
+Frontend
 
-#### 2. Setup Frontend
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-2. Install dependencies & run:
-   ```bash
-   npm install
-   npm run dev
-   ```
-   Open `http://localhost:5173` in your browser.
+```
+http://localhost:3000
+```
 
----
+Backend
 
-## 🚦 Running Automated Tests
+```
+http://localhost:8000
+```
 
-Run backend unit and integration tests verifying AI services, LangGraph workflows, and API endpoints:
-```bash
-$env:PYTHONPATH="."
-python -m pytest backend/tests/test_all_milestones.py
+Swagger Documentation
+
+```
+http://localhost:8000/docs
 ```
 
 ---
 
-## 🔌 API Reference & Endpoints
+# 💻 Local Development
 
-### 1. Argument Analysis
-#### `POST /analyze`
-Extracts claims, premises, evidence, and evaluates logical fallacies.
-* **Request Body**:
-  ```json
-  {
-    "text": "Universal Basic Income is necessary because automation reduces standard job counts.",
-    "debate_session_id": 1
-  }
-  ```
-* **Response Output**:
-  ```json
-  {
-    "argument_id": 12,
-    "scores": {
-      "clarity": 85,
-      "relevance": 90,
-      "evidence_strength": 75,
-      "logical_consistency": 80,
-      "persuasiveness": 82
-    },
-    "claims": {
-      "main_claim": "Universal Basic Income is necessary",
-      "supporting_claims": ["Automation reduces standard job counts"]
-    },
-    "fallacies": [],
-    "improved": {
-      "improved_argument": "As automation displaces standard employment sectors, implementing a Universal Basic Income becomes vital to stabilize consumer spending and support structural career transitions.",
-      "wording_tips": "Avoid absolute terms like 'always'; use 'becomes vital'."
-    }
-  }
-  ```
+## Backend
 
-### 2. Interactive Debate Simulation
-* `POST /debate/start`: Generates the AI opponent's opening statement based on selected format and difficulty.
-* `POST /debate/respond`: Submits user rebuttal and returns the AI counter-argument, scores, and coaching tips.
-* `POST /debate/end`: Ends the debate round and returns closing statements.
-* `GET /debate/performance`: Returns performance analytics and progress trends.
-* `POST /debate/learning-plan`: Generates a personalized 7/14/30 days learning plan.
+```bash
+python -m venv venv
 
-### 3. Presentation Analytics
-* `POST /presentation/upload`: Accepts MP4/WAV file uploads, returning local path and mock transcript.
-* `POST /presentation/analyze`: Performs vocal pacing, pauses index, filler words check, and pose/eye contact tracking.
-* `GET /presentation/report/{id}`: Exports PDF/JSON presentation summary.
+# Windows
+.\venv\Scripts\activate
+
+# Linux / macOS
+source venv/bin/activate
+
+pip install -r backend/requirements.txt
+
+python backend/app/main.py
+```
+
+---
+
+## Frontend
+
+```bash
+cd frontend
+
+npm install
+
+npm run dev
+```
+
+---
+
+# 🔌 API Modules
+
+## Authentication
+
+- Register
+- Login
+- JWT Token
+- User Profiles
+
+---
+
+## Debate Engine
+
+- Start Debate
+- Submit Arguments
+- AI Counter Arguments
+- Coaching Feedback
+- Debate Summary
+
+---
+
+## Argument Analysis
+
+- Claims Extraction
+- Premise Detection
+- Evidence Analysis
+- Fallacy Detection
+- AI Rewrite Suggestions
+
+---
+
+## Presentation Analysis
+
+- Upload Media
+- Speech Analysis
+- Pose Estimation
+- Voice Metrics
+- Report Generation
+
+---
+
+# 📈 Example Workflow
+
+```
+Create Account
+        │
+        ▼
+Create Debate Session
+        │
+        ▼
+Submit Argument
+        │
+        ▼
+AI Analysis
+        │
+        ▼
+Receive Coaching
+        │
+        ▼
+Practice Debate
+        │
+        ▼
+Presentation Upload
+        │
+        ▼
+Detailed Performance Report
+```
+
+---
+
+# 📊 Reports
+
+The platform can generate comprehensive reports containing:
+
+- Debate Scores
+- Argument Breakdown
+- Fallacy Analysis
+- Presentation Metrics
+- Coaching Feedback
+- Learning Recommendations
+
+Reports are exportable as:
+
+- PDF
+- JSON
+- CSV
+
+---
+
+# 🔒 Security
+
+- JWT Authentication
+- Password Hashing (Bcrypt)
+- Protected API Routes
+- SQLAlchemy ORM
+- Input Validation
+- Secure Dependency Injection
+
+---
+
+# 🎯 Future Enhancements
+
+- Real-time debate rooms
+- Voice-to-voice AI opponent
+- AI Judge Panel
+- Team debates
+- Live audience scoring
+- Multi-language debates
+- AI-generated debate topics
+- Cloud deployment support
+
+---
+
+# 🤝 Contributing
+
+Contributions are welcome.
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push your branch
+5. Open a Pull Request
+
+---
+
+# 📄 License
+
+Licensed under the **MIT License**.
+
+---
+
+<div align="center">
+
+### ⭐ If you found this project useful, consider giving it a star.
+
+Built with ❤️ using **FastAPI**, **React**, **LangGraph**, and **Modern AI Engineering**.
+
+</div>
