@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  backend:
+    build: ./Project
+    container_name: debate_coach_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-supersecretkey-change-in-production}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    volumes:
+      - ./Project/app.db:/app/app.db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build: ./debate-coach-frontend
+    container_name: debate_coach_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+networks:
+  default:
+    name: debate_coach_network
