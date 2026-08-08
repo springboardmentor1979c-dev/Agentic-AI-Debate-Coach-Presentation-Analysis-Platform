@@ -110,6 +110,47 @@ def initialize_database() -> None:
             )
             """
         )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS debate_sessions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                creator_id INTEGER NOT NULL,
+                topic TEXT NOT NULL,
+                description TEXT,
+                format TEXT NOT NULL
+                    CHECK (format IN (
+                        'One-on-One',
+                        'Parliamentary',
+                        'Oxford',
+                        'Policy',
+                        'Public Forum',
+                        'AI Debate Simulation'
+                    )),
+                scheduled_at TEXT,
+                status TEXT NOT NULL DEFAULT 'scheduled'
+                    CHECK (status IN ('draft', 'scheduled', 'in_progress', 'completed', 'cancelled')),
+                recording_notes TEXT,
+                recording_url TEXT,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (creator_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS debate_session_participants (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id INTEGER NOT NULL,
+                user_id INTEGER,
+                display_name TEXT NOT NULL,
+                position TEXT NOT NULL,
+                is_ai INTEGER NOT NULL DEFAULT 0 CHECK (is_ai IN (0, 1)),
+                FOREIGN KEY (session_id) REFERENCES debate_sessions(id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+            )
+            """
+        )
         # Existing projects may already have the original id/name/role table.
         _add_column_if_missing(connection, "email", "TEXT")
         _add_column_if_missing(connection, "password_hash", "TEXT")
@@ -129,3 +170,152 @@ def initialize_database() -> None:
         )
         _add_profile_column_if_missing(connection, "presentation_domains", "TEXT NOT NULL DEFAULT '[]'")
         _add_profile_column_if_missing(connection, "coaching_preference", "TEXT NOT NULL DEFAULT 'Self-guided'")
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS argument_analyses (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                topic TEXT,
+                speech_text TEXT NOT NULL,
+                overall_score INTEGER NOT NULL,
+                clarity_score INTEGER NOT NULL,
+                relevance_score INTEGER NOT NULL,
+                evidence_score INTEGER NOT NULL,
+                logic_score INTEGER NOT NULL,
+                persuasiveness_score INTEGER NOT NULL,
+                credibility_score INTEGER NOT NULL,
+                credibility_level TEXT NOT NULL,
+                analysis_json TEXT NOT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS counterargument_reports (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                topic TEXT,
+                position TEXT,
+                original_argument TEXT NOT NULL,
+                counter_strength_score INTEGER NOT NULL,
+                report_json TEXT NOT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS presentation_analyses (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                speech_text TEXT NOT NULL,
+                duration_seconds REAL,
+                wpm REAL NOT NULL,
+                pace_category TEXT NOT NULL,
+                filler_count INTEGER NOT NULL,
+                filler_density REAL NOT NULL,
+                confidence_score INTEGER NOT NULL,
+                clarity_score INTEGER NOT NULL,
+                engagement_score INTEGER NOT NULL,
+                overall_score INTEGER NOT NULL,
+                analysis_json TEXT NOT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS debate_simulation_sessions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                topic TEXT NOT NULL,
+                user_position TEXT NOT NULL,
+                opponent_persona TEXT NOT NULL,
+                opponent_name TEXT NOT NULL,
+                opponent_title TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'in_progress'
+                    CHECK (status IN ('in_progress', 'completed')),
+                total_turns INTEGER NOT NULL DEFAULT 0,
+                user_score INTEGER NOT NULL DEFAULT 0,
+                ai_score INTEGER NOT NULL DEFAULT 0,
+                opponent_json TEXT NOT NULL,
+                summary_json TEXT,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS debate_simulation_turns (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id INTEGER NOT NULL,
+                turn_number INTEGER NOT NULL,
+                user_argument TEXT NOT NULL,
+                ai_response TEXT NOT NULL,
+                challenge_question TEXT NOT NULL,
+                coaching_json TEXT NOT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (session_id) REFERENCES debate_simulation_sessions(id) ON DELETE CASCADE
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS performance_scorecards (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                debate_score REAL NOT NULL,
+                presentation_score REAL NOT NULL,
+                critical_thinking_score REAL NOT NULL,
+                communication_score REAL NOT NULL,
+                overall_performance_score REAL NOT NULL,
+                performance_tier TEXT NOT NULL,
+                scorecard_json TEXT NOT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS coaching_plans (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                experience_level TEXT NOT NULL,
+                target_focus TEXT NOT NULL,
+                plan_json TEXT NOT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS notifications (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                message TEXT NOT NULL,
+                notification_type TEXT NOT NULL,
+                is_read INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+            """
+        )
+
+
+
+
+

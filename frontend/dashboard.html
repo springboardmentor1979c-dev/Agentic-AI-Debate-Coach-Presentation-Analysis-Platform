@@ -6,21 +6,579 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
-    <style>html{scroll-behavior:smooth}.section-rail{position:fixed;z-index:5;left:22px;top:50%;transform:translateY(-50%);display:grid;gap:3px;padding:9px;border-radius:15px}.section-rail a{color:var(--muted);text-decoration:none;font-size:11px;padding:9px 11px;border-radius:9px;transition:.2s}.section-rail a:hover{background:rgba(182,244,230,.15);color:var(--accent)}#overview,#profileSummary,#skillsSection,#goalsSection,#debateHistory,#presentationHistory,#managementCard{scroll-margin-top:32px}@media(max-width:1320px){.section-rail{left:8px}}@media(max-width:1080px){.section-rail{position:sticky;top:8px;transform:none;grid-template-columns:repeat(3,auto);width:max-content;max-width:100%;margin:8px auto;justify-content:center}.section-rail a{padding:6px 8px;font-size:10px}}</style>
+    <style>html{scroll-behavior:smooth}
+/* --- NAV RAIL --- */
+.section-rail{position:fixed;z-index:50;left:22px;top:50%;transform:translateY(-50%);display:grid;gap:3px;padding:9px;border-radius:15px}
+.section-rail a{color:var(--muted);text-decoration:none;font-size:11px;padding:9px 11px;border-radius:9px;transition:background .25s,color .25s,box-shadow .25s}
+.section-rail a:hover{background:rgba(182,244,230,.15);color:var(--accent)}
+.section-rail a.nav-active{color:var(--accent);background:rgba(182,244,230,.18);box-shadow:inset 2px 0 0 var(--accent)}
+/* --- POPUP OVERLAY --- */
+.panel-backdrop{position:fixed;inset:0;z-index:40;background:rgba(3,10,28,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .35s ease}
+.panel-backdrop.open{opacity:1;pointer-events:all}
+.popup-panel{position:fixed;z-index:45;top:50%;left:50%;width:min(1040px,calc(100% - 100px));max-height:calc(100vh - 80px);transform:translate(-50%,-50%) scale(.92);opacity:0;pointer-events:none;overflow-y:auto;border-radius:24px;padding:32px;border:1px solid var(--line);background:linear-gradient(135deg,rgba(14,38,72,.88),rgba(8,23,47,.82));box-shadow:0 36px 90px rgba(0,0,0,.45),inset 0 1px rgba(255,255,255,.08);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);transition:opacity .35s cubic-bezier(.22,1,.36,1),transform .35s cubic-bezier(.22,1,.36,1);scrollbar-width:thin;scrollbar-color:rgba(182,244,230,.3) transparent}
+.popup-panel::-webkit-scrollbar{width:6px}.popup-panel::-webkit-scrollbar-thumb{background:rgba(182,244,230,.25);border-radius:3px}
+.popup-panel.open{opacity:1;pointer-events:all;transform:translate(-50%,-50%) scale(1)}
+.popup-panel .panel-close{position:sticky;top:0;float:right;z-index:5;background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--ink);width:34px;height:34px;border-radius:10px;font-size:18px;display:grid;place-items:center;cursor:pointer;transition:background .2s}
+.popup-panel .panel-close:hover{background:rgba(255,100,130,.25)}
+/* --- PANELISED SECTIONS: hide from flow --- */
+.panel-section{display:none}
+@media(max-width:1320px){.section-rail{left:8px}}
+@media(max-width:1080px){.section-rail{position:fixed;bottom:12px;top:auto;left:50%;transform:translateX(-50%);grid-template-columns:repeat(5,auto);width:max-content;max-width:calc(100% - 24px);margin:0}.section-rail a{padding:6px 8px;font-size:10px}.popup-panel{width:calc(100% - 32px);max-height:calc(100vh - 100px);top:48%;border-radius:18px;padding:22px}}
+</style>
     <style>body{background:#0b1f4a url("assets/calm-glass-background.png") center center/cover fixed no-repeat}.aurora,.grain{opacity:.12}.glass{background:linear-gradient(135deg,rgba(14,38,72,.72),rgba(8,26,54,.48))}</style>
     <style>.management-card{margin-top:20px}.role-counts{display:flex;gap:12px;flex-wrap:wrap}.role-count{min-width:115px;border:1px solid var(--line);background:rgba(3,13,30,.22);border-radius:13px;padding:13px}.role-count strong{display:block;font-size:25px;color:var(--accent)}.role-count span{font-size:11px;color:var(--muted)}.management-users{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}.managed-user{padding:12px;border-top:1px solid var(--line);font-size:12px}.managed-user strong{display:block}.managed-user span{color:var(--muted);font-size:11px;word-break:break-word}@media(max-width:700px){.management-users{grid-template-columns:1fr}}</style>
-    <style>.workspace-grid,.history-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}.workspace-card{border-radius:23px;padding:26px}.section-heading{display:flex;align-items:start;justify-content:space-between;gap:15px;margin-bottom:18px}.section-heading h2{font-size:22px;letter-spacing:-.05em;margin:0}.section-heading .card-kicker{margin-bottom:7px}.skills-list{display:grid;gap:13px}.skill-row{display:grid;grid-template-columns:108px 1fr 35px;align-items:center;gap:10px;font-size:12px}.skill-row label{color:var(--muted)}.skill-row output{font-family:'DM Mono',monospace;color:var(--accent);text-align:right}.skill-row input{accent-color:#a8e7df}.mini-form,.session-form{display:grid;gap:8px}.mini-form{grid-template-columns:1fr 126px auto}.session-form{grid-template-columns:1.5fr .7fr .45fr auto}.mini-form input,.session-form input,.session-form select,.profile-dialog select{min-width:0;color:var(--ink);font:inherit;font-size:12px;border:1px solid rgba(229,241,255,.13);background:rgba(3,13,30,.35);border-radius:9px;padding:10px}.mini-form button,.session-form button{background:rgba(182,244,230,.16);border:1px solid rgba(182,244,230,.28);color:var(--accent);border-radius:9px;padding:9px 12px;font-size:12px;font-weight:700}.feed-list{display:grid;gap:9px;margin-top:18px}.feed-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px solid var(--line);font-size:12px}.feed-item:first-child{border-top:0}.feed-item strong{display:block;font-size:13px}.feed-item span{color:var(--muted);font-size:11px}.goal-check{accent-color:var(--accent)}.score-pill{font-family:'DM Mono',monospace;color:var(--accent);font-size:11px;white-space:nowrap}.empty-state{color:var(--muted);font-size:12px}@media(max-width:800px){.workspace-grid,.history-grid{grid-template-columns:1fr}.mini-form,.session-form{grid-template-columns:1fr 1fr}.session-form button{grid-column:span 2}.workspace-card{padding:21px}.skill-row{grid-template-columns:92px 1fr 30px}}</style>
+    <style>.workspace-grid,.history-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}.workspace-card{border-radius:23px;padding:26px}.section-heading{display:flex;align-items:start;justify-content:space-between;gap:15px;margin-bottom:18px}.section-heading h2{font-size:22px;letter-spacing:-.05em;margin:0}.section-heading .card-kicker{margin-bottom:7px}.skills-list{display:grid;gap:13px}.skill-row{display:grid;grid-template-columns:108px 1fr 35px;align-items:center;gap:10px;font-size:12px}.skill-row label{color:var(--muted)}.skill-row output{font-family:'DM Mono',monospace;color:var(--accent);text-align:right}.skill-row input{accent-color:#a8e7df}.mini-form,.session-form{display:grid;gap:8px}.mini-form{grid-template-columns:1fr 126px auto}.session-form{grid-template-columns:1.5fr .7fr .45fr auto}.mini-form input,.session-form input,.session-form select,.profile-dialog select,.session-create-form input,.session-create-form select,.session-create-form textarea{min-width:0;color:var(--ink);font:inherit;font-size:12px;border:1px solid rgba(229,241,255,.13);background:rgba(3,13,30,.35);border-radius:9px;padding:10px}.mini-form button,.session-form button,.session-actions button{background:rgba(182,244,230,.16);border:1px solid rgba(182,244,230,.28);color:var(--accent);border-radius:9px;padding:9px 12px;font-size:12px;font-weight:700}.feed-list{display:grid;gap:9px;margin-top:18px}.feed-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px solid var(--line);font-size:12px}.feed-item:first-child{border-top:0}.feed-item strong{display:block;font-size:13px}.feed-item span{color:var(--muted);font-size:11px}.goal-check{accent-color:var(--accent)}.score-pill{font-family:'DM Mono',monospace;color:var(--accent);font-size:11px;white-space:nowrap}.empty-state{color:var(--muted);font-size:12px}.sessions-card{margin-top:20px}.format-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}.format-chip{border:1px solid var(--line);border-radius:13px;padding:12px;background:rgba(3,13,30,.22)}.format-chip strong{display:block;font-size:13px;margin-bottom:4px}.format-chip span{display:block;color:var(--muted);font-size:11px;line-height:1.45}.session-create-form{display:grid;grid-template-columns:1.4fr 1fr 1fr auto;gap:8px;align-items:start}.session-create-form .span-2{grid-column:span 2}.session-create-form textarea{min-height:42px;resize:vertical}.session-create-form button[type=submit]{background:rgba(182,244,230,.16);border:1px solid rgba(182,244,230,.28);color:var(--accent);border-radius:9px;padding:10px 14px;font-size:12px;font-weight:700;height:fit-content}.session-item{display:grid;gap:10px;padding:14px 0;border-top:1px solid var(--line)}.session-item:first-child{border-top:0}.session-top{display:flex;justify-content:space-between;gap:14px;align-items:start}.session-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}.meta-pill{font-size:10px;letter-spacing:.04em;border:1px solid var(--line);border-radius:999px;padding:4px 8px;color:var(--muted)}.meta-pill.accent{color:var(--accent);border-color:rgba(182,244,230,.35)}.session-actions{display:flex;flex-wrap:wrap;gap:8px}.session-recording{display:grid;gap:8px;margin-top:4px}.session-recording textarea{min-height:58px;resize:vertical;color:var(--ink);font:inherit;font-size:12px;border:1px solid rgba(229,241,255,.13);background:rgba(3,13,30,.35);border-radius:9px;padding:10px}.participant-row{color:var(--muted);font-size:11px}@media(max-width:900px){.format-strip,.session-create-form{grid-template-columns:1fr 1fr}.session-create-form .span-2, .session-create-form button[type=submit]{grid-column:span 2}}@media(max-width:800px){.workspace-grid,.history-grid{grid-template-columns:1fr}.mini-form,.session-form{grid-template-columns:1fr 1fr}.session-form button{grid-column:span 2}.workspace-card{padding:21px}.skill-row{grid-template-columns:92px 1fr 30px}.format-strip{grid-template-columns:1fr}}</style>
   </head>
   <body>
-    <nav class="section-rail glass" aria-label="Dashboard sections"><a href="#overview">Overview</a><a href="#profileSummary">Profile</a><a href="#skillsSection">Skills</a><a href="#goalsSection">Goals</a><a href="#debateHistory">Debates</a><a href="#presentationHistory">Presentations</a><a href="#managementCard" id="managementLink" hidden>Management</a></nav>
+    <nav class="section-rail glass" aria-label="Dashboard sections"><a href="#overview" data-panel="overview">Overview</a><a href="#profileSummary" data-panel="profileSummary">Profile</a><a href="#skillsGoals" data-panel="skillsGoals">Skills</a><a href="#goalsPanel" data-panel="goalsPanel">Goals</a><a href="#argumentEngine" data-panel="argumentEngine">Argument Engine</a><a href="#counterEngine" data-panel="counterEngine">Counter Engine</a><a href="#presentationEngine" data-panel="presentationEngine">Presentation Engine</a><a href="#simulationEngine" data-panel="simulationEngine">Simulation Engine</a><a href="#scoringEngine" data-panel="scoringEngine">Scoring Engine</a><a href="#coachingEngine" data-panel="coachingEngine">Coaching Engine</a><a href="#debateSessions" data-panel="debateSessions">Sessions</a><a href="#debateHistory" data-panel="debateHistory">Debates</a><a href="#presentationHistory" data-panel="presentationHistory">Presentations</a><a href="#managementCard" id="managementLink" data-panel="managementCard" hidden>Management</a></nav>
+    <div class="panel-backdrop" id="panelBackdrop"></div>
+    <div class="popup-panel" id="popupPanel"><button class="panel-close" id="panelCloseBtn" aria-label="Close panel">&times;</button><div id="panelContent"></div></div>
     <div class="aurora aurora-one"></div><div class="aurora aurora-two"></div><div class="grain"></div>
     <main class="shell"><header class="topbar glass"><a class="brand" href="dashboard.html" aria-label="Orator dashboard"><span class="brand-mark">O</span><span>ORATOR</span></a><div class="api-status"><i></i><span>YOUR PRIVATE STUDIO</span></div><button class="text-button" id="signOutBtn">Sign out</button></header>
       <section class="app-view" id="appView"><div class="dashboard-heading" id="overview"><div><p class="eyebrow" id="roleLabel">YOUR PRACTICE SPACE</p><h1 id="welcomeTitle">Welcome back.</h1></div><button class="outline-button" id="editProfileBtn">Edit profile</button></div>
       <div class="dashboard-grid"><article class="focus-card glass"><p class="card-kicker">CURRENT FOCUS</p><h2 id="focusTitle">Build your speaker profile</h2><p id="focusBody">Tell us where you are and where you want to go. Your practice room will take shape around it.</p><button class="primary-button compact" id="focusAction">Set up profile <span>→</span></button><div class="orbital"><span></span><span></span><span></span></div></article><div class="right-stack"><article class="welcome-card glass"><p class="card-kicker">ACCESS STATUS</p><div class="status-line"><span class="status-dot"></span><span id="accessMessage">Connected to your studio</span></div><p class="muted" id="emailText"></p></article><article class="role-card glass"><p class="card-kicker">YOUR ROLE</p><h3 id="roleCard">Learner</h3><p id="roleDescription">Shape your voice through deliberate practice.</p></article></div></div>
+      <article class="workspace-card glass" id="roleAnalyticsCard" style="margin-top: 20px;"><div class="section-heading"><div><p class="card-kicker">DASHBOARD &amp; ANALYTICS</p><h2 id="analyticsTitle">Role Analytics</h2></div></div><div id="analyticsBody"></div></article>
       <article class="profile-card glass" id="profileSummary" hidden><div><p class="card-kicker">YOUR SPEAKER PROFILE</p><h2 id="profileName"></h2></div><div class="profile-details"><div><span>Experience</span><strong id="profileExperience"></strong></div><div><span>Goals</span><strong id="profileGoals"></strong></div><div><span>Topics</span><strong id="profileTopics"></strong></div></div></article>
-      <section class="workspace-grid"><article class="workspace-card glass" id="skillsSection"><div class="section-heading"><div><p class="card-kicker">COMMUNICATION SKILLS</p><h2>Skill tracker</h2></div><button class="text-button" id="saveSkillsBtn">Save scores</button></div><div id="skillsList" class="skills-list"></div></article><article class="workspace-card glass" id="goalsSection"><div class="section-heading"><div><p class="card-kicker">LEARNING GOALS</p><h2>What comes next</h2></div></div><form class="mini-form" id="goalForm"><input name="title" placeholder="Add a learning goal" required /><input name="target_date" type="date" /><button type="submit">Add</button></form><div id="goalsList" class="feed-list empty-state">No goals yet — add the first one.</div></article></section>
-      <section class="history-grid"><article class="workspace-card glass" id="debateHistory"><div class="section-heading"><div><p class="card-kicker">DEBATE HISTORY</p><h2>Recent rounds</h2></div></div><form class="session-form" id="debateForm"><input name="topic" placeholder="Debate topic" required /><select name="position"><option>For</option><option>Against</option><option>Neutral</option></select><input name="score" type="number" min="0" max="100" placeholder="Score" /><button type="submit">Log debate</button></form><div id="debatesList" class="feed-list empty-state">Your completed debates will appear here.</div></article><article class="workspace-card glass" id="presentationHistory"><div class="section-heading"><div><p class="card-kicker">PRESENTATION HISTORY</p><h2>Past presentations</h2></div></div><form class="session-form" id="presentationForm"><input name="title" placeholder="Presentation title" required /><input name="domain" placeholder="Domain" required /><input name="score" type="number" min="0" max="100" placeholder="Score" /><button type="submit">Log presentation</button></form><div id="presentationsList" class="feed-list empty-state">Your presentations will appear here.</div></article></section>
-      <section class="workspace-card glass management-card" id="managementCard" hidden><div class="section-heading"><div><p class="card-kicker">ROLE MANAGEMENT</p><h2>Registered accounts below you</h2></div></div><div class="role-counts" id="roleCounts"></div><div class="management-users" id="managementUsers"></div></section></section></main>
+      <section class="workspace-grid panel-section" id="panel-skillsGoals"><article class="workspace-card glass" id="skillsSection"><div class="section-heading"><div><p class="card-kicker">COMMUNICATION SKILLS</p><h2>Skill tracker</h2></div><button class="text-button" id="saveSkillsBtn">Save scores</button></div><div id="skillsList" class="skills-list"></div></article></section>
+      <section class="panel-section" id="panel-goalsPanel"><article class="workspace-card glass" id="goalsSection"><div class="section-heading"><div><p class="card-kicker">LEARNING GOALS</p><h2>What comes next</h2></div></div><form class="mini-form" id="goalForm"><input name="title" placeholder="Add a learning goal" required /><input name="target_date" type="date" /><button type="submit">Add</button></form><div id="goalsList" class="feed-list empty-state">No goals yet — add the first one.</div></article></section>
+
+      <!-- ARGUMENT & LOGICAL FALLACY ANALYSIS ENGINE -->
+      <section class="workspace-card glass sessions-card panel-section" id="panel-argumentEngine">
+        <div class="section-heading">
+          <div>
+            <p class="card-kicker">AI ANALYSIS ENGINE</p>
+            <h2>Argument Extraction &amp; Fallacy Detection</h2>
+          </div>
+          <div class="preset-actions">
+            <button class="text-button" type="button" id="loadPresetFallacies">Preset: Fallacy Sample</button>
+            <button class="text-button" type="button" id="loadPresetEvidence">Preset: Strong Evidence</button>
+          </div>
+        </div>
+        <form class="session-create-form" id="argumentAnalysisForm">
+          <input name="title" id="argTitle" placeholder="Analysis title (e.g. Opening Statement)" required />
+          <input name="topic" id="argTopic" placeholder="Debate topic / motion (e.g. Plastic Ban)" />
+          <textarea class="span-2" name="speech_text" id="argSpeechText" placeholder="Paste speech transcript or debate text here for deep analysis..." required style="min-height: 90px;"></textarea>
+          <button type="submit" id="analyzeBtn">Analyze Argument &amp; Fallacies</button>
+        </form>
+
+        <div id="argumentAnalysisResults" class="analysis-results-container" style="display: none; margin-top: 24px;">
+          <!-- Multi-criteria score overview -->
+          <div class="criteria-scores-grid">
+            <div class="score-box overall">
+              <span class="score-label">Overall Strength</span>
+              <span class="score-val" id="scoreOverall">0</span>
+              <span class="credibility-badge" id="credibilityBadge">Credibility: High</span>
+            </div>
+            <div class="score-box">
+              <span class="score-label">Clarity</span>
+              <div class="bar-outer"><div class="bar-inner" id="barClarity" style="width: 0%;"></div></div>
+              <span class="score-num" id="scoreClarity">0/100</span>
+            </div>
+            <div class="score-box">
+              <span class="score-label">Relevance</span>
+              <div class="bar-outer"><div class="bar-inner" id="barRelevance" style="width: 0%;"></div></div>
+              <span class="score-num" id="scoreRelevance">0/100</span>
+            </div>
+            <div class="score-box">
+              <span class="score-label">Evidence Strength</span>
+              <div class="bar-outer"><div class="bar-inner" id="barEvidence" style="width: 0%;"></div></div>
+              <span class="score-num" id="scoreEvidence">0/100</span>
+            </div>
+            <div class="score-box">
+              <span class="score-label">Logical Consistency</span>
+              <div class="bar-outer"><div class="bar-inner" id="barLogic" style="width: 0%;"></div></div>
+              <span class="score-num" id="scoreLogic">0/100</span>
+            </div>
+            <div class="score-box">
+              <span class="score-label">Persuasiveness</span>
+              <div class="bar-outer"><div class="bar-inner" id="barPersuasiveness" style="width: 0%;"></div></div>
+              <span class="score-num" id="scorePersuasiveness">0/100</span>
+            </div>
+          </div>
+
+          <!-- Fallacies Alert Container -->
+          <div class="analysis-sub-card" style="margin-top: 18px;">
+            <h3>Logical Fallacies Detected</h3>
+            <div id="fallaciesList" class="fallacies-list"></div>
+          </div>
+
+          <!-- Claims & Evidence Container -->
+          <div class="analysis-dual-grid" style="margin-top: 18px;">
+            <div class="analysis-sub-card">
+              <h3>Extracted Claims &amp; Types</h3>
+              <div id="claimsList" class="claims-list"></div>
+            </div>
+            <div class="analysis-sub-card">
+              <h3>Evidence Grounding &amp; Quality</h3>
+              <div id="evidenceList" class="evidence-list"></div>
+            </div>
+          </div>
+
+          <!-- Reasoning & Recommendations -->
+          <div class="analysis-dual-grid" style="margin-top: 18px;">
+            <div class="analysis-sub-card">
+              <h3>Reasoning Structure</h3>
+              <p id="reasoningMode" class="muted" style="margin-bottom: 8px;"></p>
+              <div id="feedbackStrengths" class="bullets-list"></div>
+            </div>
+            <div class="analysis-sub-card">
+              <h3>Actionable Recommendations</h3>
+              <div id="feedbackRecs" class="bullets-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 24px;">
+          <h3 style="font-size: 14px; margin-bottom: 10px;">Saved Argument Reports</h3>
+          <div id="argumentHistoryList" class="feed-list empty-state">No saved argument reports yet.</div>
+        </div>
+      </section>
+
+      <!-- COUNTERARGUMENT GENERATION ENGINE -->
+      <section class="workspace-card glass sessions-card panel-section" id="panel-counterEngine">
+        <div class="section-heading">
+          <div>
+            <p class="card-kicker">COUNTERARGUMENT ENGINE</p>
+            <h2>Rebuttals, Counterpoints &amp; Strategy</h2>
+          </div>
+          <div class="preset-actions">
+            <button class="text-button" type="button" id="loadCounterPreset">Preset: Policy Argument</button>
+          </div>
+        </div>
+        <form class="session-create-form" id="counterForm">
+          <input name="title" id="counterTitle" placeholder="Report title (e.g. Round 1 Rebuttal)" required />
+          <input name="topic" id="counterTopic" placeholder="Debate topic / motion" />
+          <input name="position" id="counterPosition" placeholder="Your opposing position (e.g. Against)" />
+          <button type="submit" id="counterBtn">Generate Counterarguments</button>
+          <textarea class="span-2" name="argument_text" id="counterArgText" placeholder="Paste the opponent's argument text here for counterargument generation..." required style="min-height: 90px;"></textarea>
+        </form>
+
+        <div id="counterResults" class="analysis-results-container" style="display: none; margin-top: 24px;">
+          <!-- Strength score -->
+          <div class="criteria-scores-grid" style="grid-template-columns: 1fr;">
+            <div class="score-box overall" style="flex-direction: row; align-items: center; gap: 18px;">
+              <div><span class="score-label">Counter-Case Strength</span><span class="score-val" id="counterStrengthScore">0</span></div>
+              <div style="font-size: 12px; color: var(--muted);" id="counterSummaryText"></div>
+            </div>
+          </div>
+
+          <!-- Rebuttals -->
+          <div class="analysis-sub-card" style="margin-top: 18px;">
+            <h3>Generated Rebuttals</h3>
+            <div id="rebuttalsList"></div>
+          </div>
+
+          <!-- Counterpoints -->
+          <div class="analysis-sub-card" style="margin-top: 18px;">
+            <h3>Counterpoints</h3>
+            <div id="counterpointsList"></div>
+          </div>
+
+          <!-- 5-type Counterarguments -->
+          <div class="analysis-sub-card" style="margin-top: 18px;">
+            <h3>Typed Counterarguments</h3>
+            <div id="typedCounterList"></div>
+          </div>
+
+          <!-- Alternative Perspectives & Challenge Questions -->
+          <div class="analysis-dual-grid" style="margin-top: 18px;">
+            <div class="analysis-sub-card">
+              <h3>Alternative Perspectives</h3>
+              <div id="altPerspList"></div>
+            </div>
+            <div class="analysis-sub-card">
+              <h3>Challenge Questions</h3>
+              <div id="challengeQList"></div>
+            </div>
+          </div>
+
+          <!-- Debate Strategy -->
+          <div class="analysis-sub-card" style="margin-top: 18px;">
+            <h3>Debate Strategy Suggestions</h3>
+            <div id="strategyList"></div>
+          </div>
+        </div>
+
+        <div style="margin-top: 24px;">
+          <h3 style="font-size: 14px; margin-bottom: 10px;">Saved Counterargument Reports</h3>
+          <div id="counterHistoryList" class="feed-list empty-state">No saved counterargument reports yet.</div>
+        </div>
+      </section>
+
+      <!-- PRESENTATION ANALYSIS ENGINE -->
+      <section class="workspace-card glass sessions-card panel-section" id="panel-presentationEngine">
+        <div class="section-heading">
+          <div>
+            <p class="card-kicker">PRESENTATION ANALYSIS ENGINE</p>
+            <h2>Speech Pace, Fillers, Confidence &amp; Engagement</h2>
+          </div>
+          <div class="preset-actions">
+            <button class="text-button" type="button" id="loadPresentationPreset">Preset: Keynote Speech</button>
+          </div>
+        </div>
+        <form class="session-create-form" id="presentationFormEngine">
+          <input name="title" id="presTitle" placeholder="Presentation title (e.g. Executive Keynote)" required />
+          <input name="duration_seconds" type="number" id="presDuration" placeholder="Speech duration (sec, e.g. 120)" min="1" max="18000" />
+          <button type="submit" id="presBtn">Analyze Presentation</button>
+          <textarea class="span-2" name="speech_text" id="presText" placeholder="Paste your presentation speech text here to analyze speaking pace, filler words, confidence, clarity, and audience engagement metrics..." required style="min-height: 100px;"></textarea>
+        </form>
+
+        <div id="presentationResults" class="analysis-results-container" style="display: none; margin-top: 24px;">
+          <!-- Primary Score Cards Grid -->
+          <div class="criteria-scores-grid" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
+            <div class="score-box overall">
+              <span class="score-label">Overall Presentation</span>
+              <span class="score-val" id="presOverallScore">0</span>
+            </div>
+            <div class="score-box">
+              <span class="score-label">Speech Pace</span>
+              <span class="score-val" id="presPaceWpm">0</span>
+              <span class="score-sub" id="presPaceCategory">Optimal</span>
+            </div>
+            <div class="score-box">
+              <span class="score-label">Filler Words</span>
+              <span class="score-val" id="presFillerCount">0</span>
+              <span class="score-sub" id="presFillerDensity">0.0 / 100 w</span>
+            </div>
+            <div class="score-box">
+              <span class="score-label">Confidence</span>
+              <span class="score-val" id="presConfScore">0</span>
+              <span class="score-sub" id="presConfLevel">High</span>
+            </div>
+            <div class="score-box">
+              <span class="score-label">Clarity</span>
+              <span class="score-val" id="presClarityScore">0</span>
+              <span class="score-sub" id="presClarityRating">Crisp</span>
+            </div>
+            <div class="score-box">
+              <span class="score-label">Engagement</span>
+              <span class="score-val" id="presEngScore">0</span>
+              <span class="score-sub" id="presEngSub">Hooks &amp; CTA</span>
+            </div>
+          </div>
+
+          <!-- Filler Word Breakdown -->
+          <div class="analysis-sub-card" style="margin-top: 18px;">
+            <h3>Filler Word Usage</h3>
+            <p id="presFillerFeedback" class="muted" style="margin-bottom: 8px;"></p>
+            <div id="presFillerList" class="fallacy-chips"></div>
+          </div>
+
+          <!-- Confidence & Conviction Assessment -->
+          <div class="analysis-dual-grid" style="margin-top: 18px;">
+            <div class="analysis-sub-card">
+              <h3>Confidence Assessment</h3>
+              <p id="presConfFeedback" class="muted" style="margin-bottom: 8px;"></p>
+              <div id="presStrongAssertions" class="bullets-list"></div>
+              <div id="presHedgeWords" class="bullets-list" style="margin-top: 8px;"></div>
+            </div>
+
+            <!-- Clarity & Structural Flow -->
+            <div class="analysis-sub-card">
+              <h3>Clarity &amp; Speaking Pace</h3>
+              <p id="presClarityFeedback" class="muted" style="margin-bottom: 8px;"></p>
+              <p id="presPaceFeedback" class="muted" style="margin-bottom: 8px;"></p>
+              <div id="presTransitions" class="bullets-list"></div>
+            </div>
+          </div>
+
+          <!-- Audience Engagement & Actionable Recommendations -->
+          <div class="analysis-dual-grid" style="margin-top: 18px;">
+            <div class="analysis-sub-card">
+              <h3>Audience Engagement</h3>
+              <p id="presEngFeedback" class="muted" style="margin-bottom: 8px;"></p>
+              <div id="presHooksList" class="bullets-list"></div>
+            </div>
+            <div class="analysis-sub-card">
+              <h3>Actionable Recommendations</h3>
+              <div id="presRecsList" class="bullets-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 24px;">
+          <h3 style="font-size: 14px; margin-bottom: 10px;">Saved Presentation Analyses</h3>
+          <div id="presentationAnalysisHistoryList" class="feed-list empty-state">No saved presentation analyses yet.</div>
+        </div>
+      </section>
+
+      <!-- AI DEBATE SIMULATION ENGINE -->
+      <section class="workspace-card glass sessions-card panel-section" id="panel-simulationEngine">
+        <div class="section-heading">
+          <div>
+            <p class="card-kicker">AI DEBATE SIMULATION ENGINE</p>
+            <h2>Multi-Turn AI Opponent Arena &amp; Real-Time Coaching</h2>
+          </div>
+          <div class="preset-actions">
+            <button class="text-button" type="button" id="loadSimulationPreset">Preset: AI vs UBI</button>
+          </div>
+        </div>
+
+        <!-- Setup Form -->
+        <form class="session-create-form" id="simulationStartForm">
+          <input name="topic" id="simTopic" placeholder="Debate topic / motion (e.g. Universal Basic Income)" required />
+          <select name="user_position" id="simUserPosition">
+            <option value="For">My Stance: For (Affirmative)</option>
+            <option value="Against">My Stance: Against (Negative)</option>
+          </select>
+          <select name="opponent_persona" id="simPersona">
+            <option value="socratic">Opponent: Dr. Sophia Vance (Socratic Scholar 🎓)</option>
+            <option value="hard_hitting">Opponent: Marcus Vance (Hard-hitting Debater ⚔️)</option>
+            <option value="policy">Opponent: Elena Rostova (Policy Expert 📊)</option>
+            <option value="moralist">Opponent: Julian Thorne (Empathetic Moralist ⚖️)</option>
+            <option value="pragmatist">Opponent: David Chen (Pragmatic Realist 🌐)</option>
+          </select>
+          <button type="submit" id="simStartBtn">Start AI Debate Simulation</button>
+        </form>
+
+        <!-- Active Arena Area -->
+        <div id="simulationActiveArea" style="display: none; margin-top: 24px;">
+          <!-- Active Header Card -->
+          <div class="format-chip" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; background: rgba(14, 38, 72, 0.65);">
+            <div>
+              <strong style="font-size: 16px;" id="simOpponentHeader">🎓 Dr. Sophia Vance (Socratic Scholar)</strong>
+              <span id="simTopicMeta" style="color: var(--accent); font-size: 12px; margin-top: 2px; display: block;">Topic: Universal Basic Income</span>
+            </div>
+            <div style="text-align: right;">
+              <span class="meta-pill accent" id="simTurnCounter">Round 1</span>
+              <button type="button" class="text-button" id="simCompleteBtn" style="margin-left: 8px; color: #ff6482;">Complete Debate &amp; View Verdict</button>
+            </div>
+          </div>
+
+          <!-- Arena Dual Column Grid: Chat & Coach -->
+          <div class="analysis-dual-grid" style="grid-template-columns: 1.4fr 1fr; margin-top: 18px;">
+            <!-- Debate Thread Column -->
+            <div class="analysis-sub-card" style="display: flex; flex-direction: column; gap: 14px; max-height: 520px; overflow-y: auto;">
+              <h3>Debate Thread</h3>
+              <div id="simChatThread" style="display: flex; flex-direction: column; gap: 12px;"></div>
+            </div>
+
+            <!-- Real-Time Coach's Corner Column -->
+            <div class="analysis-sub-card" id="simCoachingCard" style="display: flex; flex-direction: column; gap: 12px;">
+              <h3>Coach's Corner</h3>
+              <div class="score-box" style="padding: 12px;">
+                <span class="score-label">Turn Quality Rating</span>
+                <span class="score-val" id="simCoachTurnScore">--/100</span>
+              </div>
+              <div>
+                <h4 style="font-size: 12px; margin-bottom: 4px; color: var(--accent);">Strengths</h4>
+                <div id="simCoachStrengths" class="bullets-list"><span class="muted">Submit your turn argument to receive instant coaching analysis.</span></div>
+              </div>
+              <div>
+                <h4 style="font-size: 12px; margin-bottom: 4px; color: #ff9d6c;">Vulnerabilities to Address</h4>
+                <div id="simCoachVulnerabilities" class="bullets-list"></div>
+              </div>
+              <div>
+                <h4 style="font-size: 12px; margin-bottom: 4px; color: var(--accent);">Strategic Next Move</h4>
+                <p id="simCoachStrategy" class="muted" style="font-size: 11px;"></p>
+              </div>
+              <div>
+                <h4 style="font-size: 12px; margin-bottom: 4px; color: var(--muted);">Tactical Counter Angles</h4>
+                <div id="simCoachSuggestions" class="fallacy-chips"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Turn Input Box -->
+          <form class="session-create-form" id="simTurnForm" style="margin-top: 18px;">
+            <textarea class="span-2" name="user_argument" id="simTurnInput" placeholder="Type your rebuttal or argument turn here for the AI opponent..." required style="min-height: 85px;"></textarea>
+            <button type="submit" id="simTurnSubmitBtn" style="height: 100%;">Submit Turn Argument <span>→</span></button>
+          </form>
+        </div>
+
+        <!-- Summary & Verdict Modal/Box -->
+        <div id="simulationSummaryBox" class="analysis-sub-card" style="display: none; margin-top: 24px;">
+          <h3>Final Debate Verdict &amp; Transcript Summary</h3>
+          <div class="score-box overall" style="margin-top: 12px;">
+            <span class="score-label">Overall Winner</span>
+            <span class="score-val" id="simWinnerVal">Draw</span>
+            <span class="score-sub" id="simScoreMeta">User 0 - AI 0</span>
+          </div>
+          <p id="simVerdictText" style="margin-top: 12px; font-size: 13px;"></p>
+          <div id="simTakeawaysList" class="bullets-list" style="margin-top: 12px;"></div>
+        </div>
+
+        <div style="margin-top: 24px;">
+          <h3 style="font-size: 14px; margin-bottom: 10px;">Saved Simulation Sessions</h3>
+          <div id="simulationHistoryList" class="feed-list empty-state">No simulation sessions yet.</div>
+        </div>
+      </section>
+
+      <!-- PERFORMANCE SCORING ENGINE -->
+      <section class="workspace-card glass sessions-card panel-section" id="panel-scoringEngine">
+        <div class="section-heading">
+          <div>
+            <p class="card-kicker">PERFORMANCE SCORING ENGINE</p>
+            <h2>Weighted 30/20/20/15/15 Debate &amp; Presentation Model</h2>
+          </div>
+          <div class="preset-actions">
+            <button class="text-button" type="button" id="loadScoringPreset">Preset: Sample Speech</button>
+          </div>
+        </div>
+
+        <form class="session-create-form" id="scoringForm">
+          <input name="title" id="scoreTitle" placeholder="Scorecard title (e.g. Finals Performance)" required />
+          <button type="submit" id="scoreBtn" class="span-2">Evaluate &amp; Compute Weighted Scorecard</button>
+
+          <!-- Input Mode Switch / Speech Text input -->
+          <textarea class="span-2" name="speech_text" id="scoreText" placeholder="Paste speech text here for automated scoring, or fill explicit sub-scores below..." style="min-height: 80px;"></textarea>
+
+          <!-- Sub-score inputs -->
+          <input type="number" min="0" max="100" id="scoreAQ" placeholder="Argument Quality (30%)" />
+          <input type="number" min="0" max="100" id="scoreEU" placeholder="Evidence Usage (20%)" />
+          <input type="number" min="0" max="100" id="scoreLC" placeholder="Logical Consistency (20%)" />
+          <input type="number" min="0" max="100" id="scoreRE" placeholder="Rebuttal Effectiveness (15%)" />
+          <input type="number" min="0" max="100" id="scoreCS" placeholder="Communication Skills (15%)" />
+        </form>
+
+        <div id="scoringResults" class="analysis-results-container" style="display: none; margin-top: 24px;">
+          <!-- Header Scorecard -->
+          <div class="score-box overall" style="flex-direction: row; justify-content: space-between; align-items: center; padding: 20px;">
+            <div>
+              <span class="score-label">Overall Performance Rating</span>
+              <span class="score-val" id="scoreOverallVal" style="font-size: 38px;">0.0</span>
+            </div>
+            <div style="text-align: right;">
+              <span class="meta-pill accent" id="scoreTierBadge" style="font-size: 14px; padding: 6px 12px;">🏆 Master Orator</span>
+              <p id="scoreTierDesc" style="color: var(--muted); font-size: 11px; margin-top: 6px; max-width: 320px;"></p>
+            </div>
+          </div>
+
+          <!-- Component Score Cards -->
+          <div class="criteria-scores-grid" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); margin-top: 18px;">
+            <div class="score-box">
+              <span class="score-label">Debate Score</span>
+              <span class="score-val" id="scoreDebateVal">0.0</span>
+              <span class="score-sub">30/20/20/15/15 Weighted</span>
+            </div>
+            <div class="score-box">
+              <span class="score-label">Presentation Score</span>
+              <span class="score-val" id="scorePresVal">0.0</span>
+              <span class="score-sub">Pace/Conf/Clarity/Eng</span>
+            </div>
+            <div class="score-box">
+              <span class="score-label">Critical Thinking</span>
+              <span class="score-val" id="scoreCriticalVal">0.0</span>
+              <span class="score-sub" id="scoreCriticalRating">Advanced</span>
+            </div>
+            <div class="score-box">
+              <span class="score-label">Communication Effect.</span>
+              <span class="score-val" id="scoreCommVal">0.0</span>
+              <span class="score-sub" id="scoreCommRating">High Impact</span>
+            </div>
+          </div>
+
+          <!-- Debate Weighted Model Breakdown -->
+          <div class="analysis-sub-card" style="margin-top: 18px;">
+            <h3>Debate Weighted Model Contribution</h3>
+            <div id="debateWeightsBreakdown" class="fallacy-chips" style="gap: 12px; margin-top: 8px;"></div>
+          </div>
+
+          <!-- Strengths, Growth & Executive Coaching -->
+          <div class="analysis-dual-grid" style="margin-top: 18px;">
+            <div class="analysis-sub-card">
+              <h3>Key Strengths &amp; Growth Areas</h3>
+              <div id="scoreStrengths" class="bullets-list"></div>
+              <div id="scoreGrowth" class="bullets-list" style="margin-top: 10px;"></div>
+            </div>
+            <div class="analysis-sub-card">
+              <h3>Executive Coaching Plan</h3>
+              <div id="scoreCoachingPlan" class="bullets-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 24px;">
+          <h3 style="font-size: 14px; margin-bottom: 10px;">Saved Performance Scorecards</h3>
+          <div id="scorecardHistoryList" class="feed-list empty-state">No saved performance scorecards yet.</div>
+        </div>
+      </section>
+
+      <!-- RECOMMENDATION & COACHING ENGINE -->
+      <section class="workspace-card glass sessions-card panel-section" id="panel-coachingEngine">
+        <div class="section-heading">
+          <div>
+            <p class="card-kicker">RECOMMENDATION &amp; COACHING ENGINE</p>
+            <h2>Personalized Development Plans &amp; Learning Paths</h2>
+          </div>
+          <div class="preset-actions">
+            <button class="text-button" type="button" id="loadCoachingPreset">Preset: 4-Week Coaching Plan</button>
+          </div>
+        </div>
+
+        <form class="session-create-form" id="coachingForm">
+          <input name="title" id="coachPlanTitle" placeholder="Plan title (e.g. Intermediate Debate Growth)" required />
+          <select name="experience_level" id="coachExpLevel">
+            <option value="Beginner">Level: Beginner</option>
+            <option value="Intermediate" selected>Level: Intermediate</option>
+            <option value="Advanced">Level: Advanced</option>
+          </select>
+          <input type="number" min="0" max="100" id="coachDebateScore" placeholder="Debate score (0-100)" value="72" />
+          <input type="number" min="0" max="100" id="coachPresScore" placeholder="Presentation score (0-100)" value="78" />
+          <button type="submit" id="coachBtn" class="span-2">Generate Personalized Coaching Plan <span>→</span></button>
+        </form>
+
+        <div id="coachingResults" class="analysis-results-container" style="display: none; margin-top: 24px;">
+          <div class="score-box overall" style="flex-direction: row; justify-content: space-between; align-items: center; padding: 18px;">
+            <div>
+              <span class="score-label">Personalized Role Feedback</span>
+              <p id="coachRoleFeedback" style="font-size: 13px; color: var(--accent); margin-top: 4px;"></p>
+            </div>
+            <div style="text-align: right;">
+              <span class="meta-pill accent" id="coachTargetFocus">Focus: Rebuttal Strategy</span>
+            </div>
+          </div>
+
+          <!-- Recommendations Grid -->
+          <div class="analysis-dual-grid" style="margin-top: 18px;">
+            <div class="analysis-sub-card">
+              <h3>Debate Improvement Recommendations</h3>
+              <div id="coachDebateRecs" class="bullets-list"></div>
+            </div>
+            <div class="analysis-sub-card">
+              <h3>Presentation Improvement Suggestions</h3>
+              <div id="coachPresRecs" class="bullets-list"></div>
+            </div>
+          </div>
+
+          <!-- Weekly Learning Path (4 Weeks) -->
+          <div class="analysis-sub-card" style="margin-top: 18px;">
+            <h3>4-Week Personalized Learning Path</h3>
+            <div id="coachWeeklyModules" class="format-strip" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-top: 12px; margin-bottom: 0;"></div>
+          </div>
+
+          <!-- Skill Development Milestones -->
+          <div class="analysis-sub-card" style="margin-top: 18px;">
+            <h3>Skill Development Milestones</h3>
+            <div id="coachMilestones" class="bullets-list"></div>
+          </div>
+        </div>
+
+        <div style="margin-top: 24px;">
+          <h3 style="font-size: 14px; margin-bottom: 10px;">Saved Coaching Plans</h3>
+          <div id="coachingHistoryList" class="feed-list empty-state">No saved coaching plans yet.</div>
+        </div>
+      </section>
+
+      <section class="workspace-card glass sessions-card panel-section" id="panel-debateSessions">
+        <div class="section-heading"><div><p class="card-kicker">DEBATE SESSION MANAGEMENT</p><h2>Schedule and run rounds</h2></div></div>
+        <div class="format-strip" id="formatStrip"></div>
+        <form class="session-create-form" id="sessionForm">
+          <input name="topic" placeholder="Debate topic / motion" required />
+          <select name="format" id="sessionFormat" required></select>
+          <input name="scheduled_at" type="datetime-local" />
+          <button type="submit">Create session</button>
+          <select name="position" id="sessionPosition"></select>
+          <input name="opponent_name" placeholder="Opponent name (optional)" />
+          <input class="span-2" name="recording_url" placeholder="Recording URL (optional)" />
+          <textarea class="span-2" name="description" placeholder="Session notes or brief (optional)"></textarea>
+        </form>
+        <div id="sessionsList" class="feed-list empty-state">No sessions yet — create one to practice a format.</div>
+      </section>
+
+      <section class="history-grid panel-section" id="panel-debateHistory"><article class="workspace-card glass"><div class="section-heading"><div><p class="card-kicker">DEBATE HISTORY</p><h2>Recent rounds</h2></div></div><form class="session-form" id="debateForm"><input name="topic" placeholder="Debate topic" required /><select name="position"><option>For</option><option>Against</option><option>Neutral</option></select><input name="score" type="number" min="0" max="100" placeholder="Score" /><button type="submit">Log debate</button></form><div id="debatesList" class="feed-list empty-state">Your completed debates will appear here.</div></article></section>
+      <section class="history-grid panel-section" id="panel-presentationHistory"><article class="workspace-card glass"><div class="section-heading"><div><p class="card-kicker">PRESENTATION HISTORY</p><h2>Past presentations</h2></div></div><form class="session-form" id="presentationForm"><input name="title" placeholder="Presentation title" required /><input name="domain" placeholder="Domain" required /><input name="score" type="number" min="0" max="100" placeholder="Score" /><button type="submit">Log presentation</button></form><div id="presentationsList" class="feed-list empty-state">Your presentations will appear here.</div></article></section>
+      <section class="workspace-card glass management-card panel-section" id="panel-managementCard" hidden><div class="section-heading"><div><p class="card-kicker">ROLE MANAGEMENT</p><h2>Registered accounts below you</h2></div></div><div class="role-counts" id="roleCounts"></div><div class="management-users" id="managementUsers"></div></section></section></main>
     <dialog class="profile-dialog glass" id="profileDialog"><form method="dialog" id="profileForm"><div class="dialog-header"><div><p class="eyebrow">SPEAKER PROFILE</p><h2>Shape your practice.</h2></div><button class="close-button" type="button" value="cancel" aria-label="Close">×</button></div><label>How should we address you?<input name="name" required /></label><label>Your experience<textarea name="experience" required></textarea></label><label>What are you working toward?<textarea name="goals" required></textarea></label><label>Preferred debate topics <small>Separate with commas</small><input name="topics" required /></label><label>Presentation domains <small>Separate with commas</small><input name="domains" placeholder="Business, education, technology" /></label><label>Coaching preference<select name="coaching_preference"><option>Self-guided</option><option>Coach feedback</option><option>Educator guidance</option></select></label><button class="primary-button" type="submit">Save my profile <span>→</span></button><p class="form-message" id="profileMessage"></p></form></dialog>
     <script src="dashboard.js"></script>
   </body>

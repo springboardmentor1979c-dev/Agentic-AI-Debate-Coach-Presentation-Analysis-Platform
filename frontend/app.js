@@ -20,7 +20,7 @@ document.querySelectorAll(".auth-tabs button").forEach((button) => button.addEve
 
 $("#loginForm").addEventListener("submit", async (event) => {
   event.preventDefault(); const form = new FormData(event.currentTarget); const message = $("#formMessage"); setMessage(message, "Connecting to your studio…");
-  try { const data = await api("/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.fromEntries(form)) }); state.token = data.access_token; state.user = { email: form.get("email"), role: data.role }; localStorage.setItem("orator_token", state.token); localStorage.setItem("orator_user", JSON.stringify(state.user)); window.location.href = "dashboard.html"; } catch (error) { setMessage(message, error.message); }
+  try { const data = await api("/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.fromEntries(form)) }); state.token = data.access_token; state.user = { id: data.id, name: data.name, email: form.get("email"), role: data.role }; localStorage.setItem("orator_token", state.token); localStorage.setItem("orator_user", JSON.stringify(state.user)); window.location.href = "dashboard.html"; } catch (error) { setMessage(message, error.message); }
 });
 
 $("#registerForm").addEventListener("submit", async (event) => {

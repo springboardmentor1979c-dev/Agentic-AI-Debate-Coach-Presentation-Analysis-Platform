@@ -1,0 +1,10 @@
+__pycache__
+*.pyc
+*.pyo
+.git
+.gitignore
+*.db
+users.db
+.env
+*.md
+test_*.py
