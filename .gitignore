@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+backend/__pycache__/
+backend/app/__pycache__/
+backend/app/*/__pycache__/
+.pytest_cache/
+*.pyc
+
+# Database & Environment
+debate_coach.db
+*.sqlite3
+.env
+
+# Build outputs
+frontend/dist/
+frontend/build/
+
+# Logs
+*.log
