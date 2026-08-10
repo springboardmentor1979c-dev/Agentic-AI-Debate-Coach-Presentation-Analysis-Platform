@@ -75,40 +75,41 @@ The project is developed as an AI-powered learning and communication improvement
               └────────────────┼────────────────┘
                                ▼
                          Data Storage
+```
 
 ## 🚀 How to Run the Project
 
 ### 1. Clone the Repository
 
-git clone https://github.com/springboardmentor1979c-dev/Agentic-AI-Debate-Coach-Presentation-Analysis-Platform.git
+<pre><code>git clone https://github.com/springboardmentor1979c-dev/Agentic-AI-Debate-Coach-Presentation-Analysis-Platform.git</code></pre>
 
 ### 2. Navigate to the Project
 
-cd Agentic-AI-Debate-Coach-Presentation-Analysis-Platform
+<pre><code>cd Agentic-AI-Debate-Coach-Presentation-Analysis-Platform</code></pre>
 
 ### 3. Setup the Backend
 
-cd Backend
+<pre><code>cd Backend</code></pre>
 
 Create a virtual environment:
 
-python -m venv venv
+<pre><code>python -m venv venv</code></pre>
 
 Activate it on Windows:
 
-venv\Scripts\activate
+<pre><code>venv\Scripts\activate</code></pre>
 
 Install dependencies:
 
-pip install -r requirements.txt
+<pre><code>pip install -r requirements.txt</code></pre>
 
 ### 4. Start the FastAPI Server
 
-python -m uvicorn main:app --reload
+<pre><code>python -m uvicorn main:app --reload</code></pre>
 
 The backend will run at:
 
-http://127.0.0.1:8000
+<pre><code>http://127.0.0.1:8000</code></pre>
 
 ### 5. Start the Frontend
 
@@ -116,22 +117,22 @@ Open the `Frontend` folder in VS Code and run it using Live Server.
 
 The frontend will normally be available at:
 
-http://127.0.0.1:5500/Frontend/
+<pre><code>http://127.0.0.1:5500/Frontend/</code></pre>
 
 ## 🔄 Application Workflow
 
-Register
-   ↓
-Login
-   ↓
-Dashboard
-   ↓
-Debate Session / Presentation
-   ↓
-AI Analysis / Upload PDF or PPT
-   ↓
-Feedback & Score / Presentation Result
-   ↓
+Register  
+↓  
+Login  
+↓  
+Dashboard  
+↓  
+Debate Session / Presentation  
+↓  
+AI Analysis / Upload PDF or PPT  
+↓  
+Feedback & Score / Presentation Result  
+↓  
 History / Performance
 
 ## 🎓 Project Objective
