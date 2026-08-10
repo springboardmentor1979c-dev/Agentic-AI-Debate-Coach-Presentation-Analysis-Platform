@@ -48,8 +48,9 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         )
         return payload
 
-    except Exception:
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid Token"
-        )
+    except Exception as e:
+      print("JWT ERROR:", repr(e))
+    raise HTTPException(
+        status_code=401,
+        detail="Invalid Token"
+    )

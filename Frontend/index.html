@@ -1,50 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Debate Coach - Login</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-<div class="container">
-
-    <div class="card">
-
-        <h1>AI Debate Coach</h1>
-
-        <p class="subtitle">
-            Login to continue
-        </p>
-
-        <input
-            type="text"
-            id="username"
-            placeholder="Username">
-
-        <input
-            type="password"
-            id="password"
-            placeholder="Password">
-
-        <button onclick="loginUser()">
-            Login
-        </button>
-
-        <p class="bottom-text">
-            Don't have an account?
-
-            <a href="register.html">
-                Register
-            </a>
-        </p>
-
-    </div>
-
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>AI Debate Coach & Presentation Analysis Platform</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <!-- Font Awesome icons (free version)-->
+        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+        <!-- Google fonts-->
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="css/styles.css" rel="stylesheet" />
+    </head>
+    <body id="page-top">
+        <!-- Navigation-->
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
+            <div class="container">
+                <a class="navbar-brand fw-bold text-white fs-3" href="#page-top">
+    AI Debate Coach
+</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                    Menu
+                    <i class="fas fa-bars ms-1"></i>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarResponsive">
+                    <ul class="navbar-nav text-uppercase ms-auto py-4 py-lg-0">
+                        <li class="nav-item"><a class="nav-link" href="#page-top">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#services">Features</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#about">How It Works</a></li>
+                        <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
+                        <li class="nav-item"><a class="nav-link" href="register.html">Register</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- Masthead-->
+        <header class="masthead">
+            <div class="container">
+                <div class="masthead-subheading">
+    AI-Powered Learning Platform
 </div>
 
-<script src="script.js"></script>
+<div class="masthead-heading text-uppercase">
+    Agentic AI Debate Coach
+</div>
 
-</body>
+<p class="text-white fs-5 mt-3 mb-4">
+    Improve your debating, presentation, and communication skills with AI-powered coaching, personalized feedback, and intelligent debate simulations.
+</p>
+
+<a class="btn btn-primary btn-xl text-uppercase" href="register.html">
+    Get Started
+</a>
+            </div>
+        </header>
+        <!-- Services-->
+        <section class="page-section" id="services">
+            <div class="container">
+                <div class="text-center">
+                    <h2 class="section-heading text-uppercase">Platform Features</h2>
+                    <h3 class="section-subheading text-muted">
+                    Discover how our AI-powered platform helps you become a confident speaker and stronger debater.
+                    </h3>
+                </div>
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <span class="fa-stack fa-4x">
+                            <i class="fas fa-circle fa-stack-2x text-primary"></i>
+                            <i class="fas fa-comments fa-stack-1x fa-inverse"></i>
+                        </span>
+                        <h4 class="my-3">AI Debate Coach</h4>
+                        <p class="text-muted">Practice debates with AI, strengthen your arguments, and receive intelligent coaching to improve your critical thinking.</p>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="fa-stack fa-4x">
+                            <i class="fas fa-circle fa-stack-2x text-primary"></i>
+                            <i class="fas fa-chalkboard-teacher fa-stack-1x fa-inverse"></i>
+                        </span>
+                        <h4 class="my-3">Presentation Analysis</h4>
+                        <p class="text-muted">Analyze your presentation skills, speaking clarity, confidence, and communication effectiveness with AI-powered insights.</p>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="fa-stack fa-4x">
+                            <i class="fas fa-circle fa-stack-2x text-primary"></i>
+                            <i class="fas fa-chart-line fa-stack-1x fa-inverse"></i>
+                        </span>
+                        <h4 class="my-3">Performance Dashboard</h4>
+                        <p class="text-muted">Track debate history, monitor your progress, review performance scores, and receive personalized recommendations for improvement.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Portfolio Grid-->
+        <section class="page-section bg-light" id="portfolio">
+            <div class="container">
+                <div class="text-center">
+                    <h2 class="section-heading text-uppercase">
+                    Platform Modules
+                    </h2>
+                    Explore the intelligent modules that power the AI Debate Coach Platform.
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-sm-6 mb-4">
+                        <!-- Portfolio item 1-->
+                        <div class="portfolio-item">
+                            <img class="img-fluid rounded-top"
+                            src="assets/img/Debate Session.jpeg"
+                            alt="Debate Session">
+                            <div class="portfolio-caption">
+                                <div class="portfolio-caption-heading">Debate Session</div>
+                                <div class="portfolio-caption-subheading text-muted">Practice & AI Interaction</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-sm-6 mb-4">
+                        <!-- Portfolio item 2-->
+                        <div class="portfolio-item">
+                            <img class="img-fluid rounded-top"
+                            src="assets/img/Argument Analysis.jpeg"
+                            alt="Argument Analysis">
+                            <div class="portfolio-caption">
+                                <div class="portfolio-caption-heading">Argument Analysis</div>
+                                <div class="portfolio-caption-subheading text-muted">Strength & Logic Evaluation</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-sm-6 mb-4">
+                        <!-- Portfolio item 3-->
+                        <div class="portfolio-item">
+                            <img class="img-fluid rounded-top"
+                            src="assets/img/Logical Fallacy Detection.jpeg"
+                            alt="Logical Fallacy Detection">
+                            <div class="portfolio-caption">
+                                <div class="portfolio-caption-heading">Logical Fallacy Detection</div>
+                                <div class="portfolio-caption-subheading text-muted">Identify Weak Arguments</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-sm-6 mb-4 mb-lg-0">
+                        <!-- Portfolio item 4-->
+                        <div class="portfolio-item">
+                            <img class="img-fluid rounded-top"
+                            src="assets/img/Counterargument Generator.jpeg"
+                            alt="Counterargument Generator">
+                            <div class="portfolio-caption">
+                                <div class="portfolio-caption-heading">Counterargument Generator</div>
+                                <div class="portfolio-caption-subheading text-muted">AI-Powered Suggestions</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-sm-6 mb-4 mb-sm-0">
+                        <!-- Portfolio item 5-->
+                        <div class="portfolio-item">
+                            <img class="img-fluid rounded-top"
+                            src="assets/img/Presentation Analysis.jpeg"
+                            alt="Presentation Analysis">
+                            <div class="portfolio-caption">
+                                <div class="portfolio-caption-heading">Presentation Analysis</div>
+                                <div class="portfolio-caption-subheading text-muted">Speech & Communication Review</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-sm-6">
+                        <!-- Portfolio item 6-->
+                        <div class="portfolio-item">
+                            <img class="img-fluid rounded-top"
+                            src="assets/img/Performance Dashboard.jpeg"
+                            alt="Performance Dashboard">
+                            <div class="portfolio-caption">
+                                <div class="portfolio-caption-heading">Performance Dashboard</div>
+                                <div class="portfolio-caption-subheading text-muted">Track Your Growth</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- About-->
+        <section class="page-section" id="about">
+            <div class="container">
+                <div class="text-center">
+                    <h2 class="section-heading text-uppercase">How It Works</h2>
+                    <h3 class="section-subheading text-muted">
+                    Follow these simple steps to improve your debating and presentation skills with AI.
+                    </h3>
+                </div>
+                <ul class="timeline">
+                    <li>
+                        <div class="timeline-image"><img class="rounded-circle img-fluid" src="assets/img/Register Now.jpeg" alt="..." /></div>
+                        <div class="timeline-panel">
+                            <div class="timeline-heading">
+                                Step 1
+                                Create Your Account
+                            </div>
+                            <div class="timeline-body"><p class="text-muted">Register as a learner and create your personalized profile to begin your AI-powered learning journey.</p></div>
+                        </div>
+                    </li>
+                    <li class="timeline-inverted">
+                        <div class="timeline-image"><img class="rounded-circle img-fluid" src="assets/img/Debate Badge.jpeg" alt="..." /></div>
+                        <div class="timeline-panel">
+                            <div class="timeline-heading">
+                                Step 2
+                                Start a Debate Session
+                            </div>
+                            <div class="timeline-body"><p class="text-muted">Choose a debate topic, present your arguments, and interact with the AI debate coach for real-time practice.</p></div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="timeline-image"><img class="rounded-circle img-fluid" src="assets/img/AI-Feedback.jpeg" alt="..." /></div>
+                        <div class="timeline-panel">
+                            <div class="timeline-heading">
+                                Step 3
+                                Receive AI Feedback
+                            </div>
+                            <div class="timeline-body"><p class="text-muted">Get detailed feedback on your arguments, presentation, communication, and logical reasoning.</p></div>
+                        </div>
+                    </li>
+                    <li class="timeline-inverted">
+                        <div class="timeline-image"><img class="rounded-circle img-fluid" src="assets/img/Dashboard.jpeg" alt="..." /></div>
+                        <div class="timeline-panel">
+                            <div class="timeline-heading">
+                                Step 4
+                                Track Your Progress
+                            </div>
+                            <div class="timeline-body"><p class="text-muted">View your performance dashboard, monitor improvements, and receive personalized recommendations after every session.</p></div>
+                        </div>
+                    </li>
+                    <li class="timeline-inverted">
+                        <div class="timeline-image">
+                            Start
+                            Your AI
+                            Journey!
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </section>
+    
+        <!-- Contact-->
+        <section class="page-section" id="contact">
+            <div class="container">
+                <div class="text-center">
+                    <h2 class="section-heading text-uppercase">Ready to Improve Your Skills?</h2>
+                    <h3 class="section-subheading text-muted">Join our AI-powered platform today and start your journey toward becoming a confident debater and presenter.</h3>
+                </div>
+                <div class="text-center mt-5">
+                    <a href="register.html" class="btn btn-primary btn-xl me-3">
+                    Register Now
+                    </a>
+
+                    <a href="register.html" class="btn btn-outline-light btn-xl">
+                    Login
+                    </a>
+                </div>
+            </div>
+        </section>
+        <!-- Footer-->
+        <footer class="footer py-4">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-4 text-lg-start">© 2026 AI Debate Coach & Presentation Analysis Platform. All Rights Reserved.</div>
+                    <div class="col-lg-4 text-lg-end">
+                        <a class="link-dark text-decoration-none me-3" href="register.html">Login</a>
+                        <a class="link-dark text-decoration-none" href="register.html">Register</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="js/scripts.js"></script>
+        <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+        <!-- * *                               SB Forms JS                               * *-->
+        <!-- * * Activate your form at https://startbootstrap.com/solution/contact-forms * *-->
+        <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+        <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
+    </body>
 </html>

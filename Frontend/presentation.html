@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Presentation Analysis</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <h1>📊 Presentation Analysis</h1>
+
+        <p class="subtitle">
+            Upload your PowerPoint or PDF presentation for AI analysis.
+        </p>
+
+        <hr>
+
+        <h3>Select Presentation</h3>
+
+        <input
+            type="file"
+            id="presentationFile"
+            accept=".ppt,.pptx,.pdf">
+
+        <br><br>
+
+        <button
+            type="button"
+            onclick="uploadPresentation()">
+
+            🚀 Analyze Presentation
+
+        </button>
+
+        <br><br>
+
+        <button
+            type="button"
+            onclick="window.location.href='dashboard.html'">
+
+            ⬅ Back to Dashboard
+
+        </button>
+
+    </div>
+
+</div>
+
+<script src="js/api.js"></script>
+
+</body>
+</html>

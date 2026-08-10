@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+.vscode/
+
+*.log
+
+uploads/*
+!uploads/.gitkeep
+
+Backend/uploads/
+Backend/users.db

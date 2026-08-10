@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Text, ForeignKey
 from database import Base
 
 # User Table
@@ -19,3 +19,11 @@ class UserProfile(Base):
     experience = Column(String)
     goals = Column(String)
     preferred_topics = Column(String)
+
+class Debate(Base):
+    __tablename__ = "debates"
+
+    id = Column(Integer, primary_key=True, index=True)
+    topic = Column(String, nullable=False)
+    argument = Column(Text, nullable=False)
+    user_email = Column(String, nullable=False)
