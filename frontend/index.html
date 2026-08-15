@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Debate Coach — Argue Better</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0B0E1A;
+    --panel:#141A2E;
+    --panel-2:#1C2340;
+    --brass:#C9A227;
+    --brass-soft:#C9A22766;
+    --violet:#8B7CFF;
+    --parchment:#F2ECDD;
+    --mist:#7C87AC;
+    --danger:#E4667A;
+    --good:#6FD3A6;
+    --r-card:14px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1100px 600px at 82% -10%, #22284a55, transparent 60%),
+      radial-gradient(900px 500px at -10% 20%, #1a1f3a66, transparent 55%),
+      var(--ink);
+    color:var(--parchment);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  ::selection{ background:var(--violet); color:var(--ink); }
+  h1,h2,h3{ font-family:'Fraunces',serif; font-weight:500; margin:0; letter-spacing:-0.01em;}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px; letter-spacing:0.16em; text-transform:uppercase;
+    color:var(--brass); margin:0 0 14px;
+  }
+  a{ color:inherit; }
+  button{ font-family:'Inter',sans-serif; cursor:pointer; }
+
+  /* ---------- Nav ---------- */
+  nav{
+    position:sticky; top:0; z-index:40;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 6vw;
+    background:#0B0E1Acc; backdrop-filter:blur(10px);
+    border-bottom:1px solid #ffffff12;
+  }
+  .brand{ display:flex; align-items:center; gap:12px; font-family:'Fraunces',serif; font-size:19px; }
+  .brand-mark{
+    width:26px;height:26px; perspective:200px;
+  }
+  .brand-mark-inner{
+    width:100%;height:100%; position:relative; transform-style:preserve-3d;
+    animation: spinMark 6s linear infinite;
+  }
+  .brand-mark-face{
+    position:absolute; inset:0;
+    background:linear-gradient(145deg, var(--violet), var(--brass));
+    clip-path:polygon(50% 0%, 0% 100%, 100% 100%);
+  }
+  .brand-mark-face.b{ transform:rotateY(180deg); }
+  @keyframes spinMark{ to{ transform:rotateY(360deg); } }
+  .nav-links{ display:flex; gap:32px; font-size:14px; color:var(--mist); }
+  .nav-links a:hover{ color:var(--parchment); }
+  .nav-cta{
+    background:none; border:1px solid var(--brass-soft); color:var(--parchment);
+    padding:9px 18px; border-radius:100px; font-size:14px; transition:.2s;
+  }
+  .nav-cta:hover{ border-color:var(--brass); background:#C9A22715; }
+
+  section{ padding:0 6vw; }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    display:grid; grid-template-columns:1.1fr 0.9fr; align-items:center;
+    min-height:86vh; gap:40px; padding-top:4vh;
+  }
+  .hero h1{ font-size:clamp(40px,5.2vw,72px); line-height:1.02; }
+  .hero h1 em{ font-style:italic; color:var(--violet); }
+  .hero p.lede{
+    color:var(--mist); font-size:18px; line-height:1.6; max-width:46ch; margin:22px 0 34px;
+  }
+  .hero-ctas{ display:flex; gap:14px; }
+  .btn-primary, .btn-ghost{
+    padding:14px 26px; border-radius:100px; font-size:15px; font-weight:500; border:none;
+  }
+  .btn-primary{ background:var(--brass); color:#1A1400; transition:.2s; }
+  .btn-primary:hover{ background:#DDB335; transform:translateY(-1px); }
+  .btn-ghost{ background:transparent; color:var(--parchment); border:1px solid #ffffff2a; }
+  .btn-ghost:hover{ border-color:#ffffff55; }
+
+  /* ---------- 3D signature cube ---------- */
+  .cube-stage{ perspective:1300px; display:flex; align-items:center; justify-content:center; height:400px; }
+  .cube{
+    position:relative; width:230px; height:230px; transform-style:preserve-3d;
+    animation:spinCube 16s linear infinite;
+  }
+  @keyframes spinCube{ from{ transform:rotateY(0deg) rotateX(-10deg);} to{ transform:rotateY(360deg) rotateX(-10deg);} }
+  .cube-face{
+    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:6px; border:1px solid var(--brass-soft);
+    background:linear-gradient(160deg,#1C2340ee,#141A2Ecc);
+    box-shadow: inset 0 0 40px #8B7CFF22;
+    backface-visibility:hidden;
+  }
+  .cube-face .num{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--violet); }
+  .cube-face .word{ font-family:'Fraunces',serif; font-size:22px; }
+  .f-front{ transform:rotateY(0deg) translateZ(115px); }
+  .f-right{ transform:rotateY(90deg) translateZ(115px); }
+  .f-back{ transform:rotateY(180deg) translateZ(115px); }
+  .f-left{ transform:rotateY(-90deg) translateZ(115px); }
+  .cube-ground{
+    width:230px; height:40px; margin:0 auto; margin-top:-40px;
+    background:radial-gradient(ellipse at center, #8B7CFF33, transparent 70%);
+    filter:blur(4px);
+  }
+
+  /* ---------- Framework strip ---------- */
+  .framework{ padding:80px 6vw; border-top:1px solid #ffffff10; border-bottom:1px solid #ffffff10; }
+  .framework h2{ font-size:30px; max-width:20ch; margin-bottom:44px; }
+  .fw-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:22px; }
+  .fw-card{
+    background:var(--panel); border:1px solid #ffffff10; border-radius:var(--r-card);
+    padding:26px 22px; border-top:2px solid var(--brass-soft);
+  }
+  .fw-card .stage{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--brass); letter-spacing:.1em; }
+  .fw-card h3{ font-size:20px; margin:10px 0 8px; }
+  .fw-card p{ color:var(--mist); font-size:14px; line-height:1.55; margin:0; }
+
+  /* ---------- Auth ---------- */
+  .auth-section{ display:none; min-height:90vh; align-items:center; justify-content:center; padding:60px 6vw; }
+  .auth-section.active{ display:flex; }
+  .auth-stage{ perspective:1600px; width:420px; max-width:92vw; }
+  .auth-card{
+    position:relative; width:100%; min-height:480px; transform-style:preserve-3d;
+    transition:transform .7s cubic-bezier(.4,.15,.2,1);
+  }
+  .auth-card.flipped{ transform:rotateY(180deg); }
+  .auth-face{
+    position:absolute; inset:0; backface-visibility:hidden;
+    background:linear-gradient(165deg,#171D34,#10142400);
+    background-color:var(--panel);
+    border:1px solid #ffffff14; border-top:2px solid var(--brass);
+    border-radius:18px; padding:38px 34px;
+  }
+  .auth-face.back{ transform:rotateY(180deg); }
+  .auth-face h2{ font-size:26px; margin-bottom:6px; }
+  .auth-sub{ color:var(--mist); font-size:14px; margin-bottom:26px; }
+  label{ font-size:12px; color:var(--mist); display:block; margin:16px 0 6px; text-transform:uppercase; letter-spacing:.08em; }
+  input, select, textarea{
+    width:100%; background:#0B0E1A; border:1px solid #ffffff1c; color:var(--parchment);
+    padding:12px 14px; border-radius:8px; font-size:14px; font-family:'Inter',sans-serif;
+    transition:.2s;
+  }
+  input:focus, select:focus, textarea:focus{ outline:none; border-color:var(--violet); box-shadow:0 0 0 3px #8B7CFF22; }
+  .auth-submit{
+    width:100%; margin-top:24px; padding:13px; border-radius:100px; border:none;
+    background:var(--violet); color:#0B0E1A; font-weight:600; font-size:15px; transition:.2s;
+  }
+  .auth-submit:hover{ background:#A297FF; }
+  .switch-line{ text-align:center; margin-top:20px; font-size:13px; color:var(--mist); }
+  .switch-line button{ background:none; border:none; color:var(--brass); font-size:13px; text-decoration:underline; padding:0; }
+  .form-msg{ margin-top:14px; font-size:13px; padding:10px 12px; border-radius:8px; display:none; font-family:'JetBrains Mono',monospace; }
+  .form-msg.show{ display:block; }
+  .form-msg.err{ background:#E4667A1a; color:var(--danger); border:1px solid #E4667A44; }
+  .form-msg.ok{ background:#6FD3A61a; color:var(--good); border:1px solid #6FD3A644; }
+
+  /* ---------- App / dashboard ---------- */
+  .app-section{ display:none; min-height:100vh; padding:50px 6vw 100px; }
+  .app-section.active{ display:block; }
+  .app-header{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:36px; flex-wrap:wrap; gap:16px;}
+  .app-header .eyebrow{ margin-bottom:6px; }
+  .who{ font-size:13px; color:var(--mist); }
+  .who b{ color:var(--parchment); }
+  .role-pill{
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em;
+    background:#8B7CFF1f; color:var(--violet); border:1px solid #8B7CFF44;
+    padding:4px 10px; border-radius:100px; text-transform:uppercase;
+  }
+  .logout-btn{ background:none; border:1px solid #ffffff2a; color:var(--mist); padding:9px 16px; border-radius:100px; font-size:13px; }
+  .logout-btn:hover{ border-color:#ffffff55; color:var(--parchment); }
+
+  .grid-2{ display:grid; grid-template-columns:1.1fr 1fr; gap:26px; align-items:start; }
+
+  .tilt-card{
+    background:var(--panel); border:1px solid #ffffff10; border-top:2px solid var(--brass-soft);
+    border-radius:var(--r-card); padding:28px; transform-style:preserve-3d; transition:transform .15s ease-out, box-shadow .15s ease-out;
+    will-change:transform;
+  }
+  .tilt-card h3{ font-size:19px; margin-bottom:16px; }
+
+  .profile-form label:first-of-type{ margin-top:0; }
+  .save-note{ font-size:12px; color:var(--good); margin-top:10px; display:none; font-family:'JetBrains Mono',monospace; }
+  .save-note.show{ display:block; }
+
+  .access-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px; }
+  .access-row{
+    display:flex; justify-content:space-between; align-items:center;
+    background:#0B0E1A; border:1px solid #ffffff14; border-radius:10px; padding:12px 14px;
+  }
+  .access-row .name{ font-size:13px; }
+  .access-row .sub{ font-size:11px; color:var(--mist); font-family:'JetBrains Mono',monospace; }
+  .badge{ font-family:'JetBrains Mono',monospace; font-size:11px; padding:4px 10px; border-radius:100px; min-width:70px; text-align:center; }
+  .badge.pending{ background:#ffffff10; color:var(--mist); }
+  .badge.ok{ background:#6FD3A61f; color:var(--good); border:1px solid #6FD3A644; }
+  .badge.no{ background:#E4667A1f; color:var(--danger); border:1px solid #E4667A44; }
+  .try-btn{ background:none; border:1px solid #ffffff22; color:var(--mist); font-size:11px; padding:6px 10px; border-radius:8px; margin-top:16px; }
+  .try-btn:hover{ border-color:#ffffff55; color:var(--parchment); }
+
+  footer{ text-align:center; padding:36px; color:var(--mist); font-size:12px; border-top:1px solid #ffffff10; }
+
+  @media (max-width:880px){
+    .hero{ grid-template-columns:1fr; text-align:left; }
+    .fw-grid{ grid-template-columns:1fr 1fr; }
+    .grid-2{ grid-template-columns:1fr; }
+    .access-grid{ grid-template-columns:1fr; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .cube, .brand-mark-inner{ animation:none; }
+    .auth-card{ transition:none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">
+    <span class="brand-mark"><span class="brand-mark-inner">
+      <span class="brand-mark-face"></span><span class="brand-mark-face b"></span>
+    </span></span>
+    Debate Coach
+  </div>
+  <div class="nav-links">
+    <a href="#framework">Framework</a>
+    <a href="#" onclick="showView('landing');return false;">Home</a>
+  </div>
+  <button class="nav-cta" onclick="openAuth('login')">Sign in</button>
+</nav>
+
+<!-- ===================== LANDING ===================== -->
+<div id="view-landing">
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Agentic AI Debate Coach &amp; Presentation Analysis</p>
+      <h1>Argue with <em>structure.</em><br/>Speak with <em>conviction.</em></h1>
+      <p class="lede">A practice ground for debaters, coaches, and classrooms — built around one idea: every strong argument turns on the same four faces.</p>
+      <div class="hero-ctas">
+        <button class="btn-primary" onclick="openAuth('register')">Create an account</button>
+        <button class="btn-ghost" onclick="openAuth('login')">Sign in</button>
+      </div>
+    </div>
+    <div>
+      <div class="cube-stage">
+        <div class="cube">
+          <div class="cube-face f-front"><span class="num">01</span><span class="word">Claim</span></div>
+          <div class="cube-face f-right"><span class="num">02</span><span class="word">Evidence</span></div>
+          <div class="cube-face f-back"><span class="num">03</span><span class="word">Rebuttal</span></div>
+          <div class="cube-face f-left"><span class="num">04</span><span class="word">Verdict</span></div>
+        </div>
+      </div>
+      <div class="cube-ground"></div>
+    </div>
+  </section>
+
+  <section class="framework" id="framework">
+    <h2>Every session is scored on the same four turns of the argument.</h2>
+    <div class="fw-grid">
+      <div class="fw-card"><span class="stage">01 · OPEN</span><h3>Claim</h3><p>State the position in one sentence a listener could repeat back.</p></div>
+      <div class="fw-card"><span class="stage">02 · SUPPORT</span><h3>Evidence</h3><p>Back it with sources, data, or precedent — not just conviction.</p></div>
+      <div class="fw-card"><span class="stage">03 · DEFEND</span><h3>Rebuttal</h3><p>Meet the strongest counter-argument, not the weakest one.</p></div>
+      <div class="fw-card"><span class="stage">04 · CLOSE</span><h3>Verdict</h3><p>Land the takeaway a judge would write down.</p></div>
+    </div>
+  </section>
+
+  <footer>Agentic AI Debate Coach &amp; Presentation Analysis Platform — local build</footer>
+</div>
+
+<!-- ===================== AUTH ===================== -->
+<section class="auth-section" id="view-auth">
+  <div class="auth-stage">
+    <div class="auth-card" id="authCard">
+
+      <!-- LOGIN -->
+      <div class="auth-face front">
+        <h2>Sign in</h2>
+        <p class="auth-sub">Pick up the practice where you left off.</p>
+        <form id="loginForm">
+          <label>Email</label>
+          <input type="email" id="loginEmail" required placeholder="you@example.com" value="sample.user@example.com"/>
+          <label>Password</label>
+          <input type="password" id="loginPassword" required placeholder="••••••••" value="password123"/>
+          <button class="auth-submit" type="submit">Sign in</button>
+          <div class="form-msg" id="loginMsg"></div>
+        </form>
+        <p class="switch-line">New here? <button onclick="flipAuth(true)">Create an account</button></p>
+      </div>
+
+      <!-- REGISTER -->
+      <div class="auth-face back">
+        <h2>Create account</h2>
+        <p class="auth-sub">Choose the role that fits how you'll use it.</p>
+        <form id="registerForm">
+          <label>Name</label>
+          <input type="text" id="regName" required placeholder="Asha Kumar"/>
+          <label>Email</label>
+          <input type="email" id="regEmail" required placeholder="you@example.com"/>
+          <label>Password</label>
+          <input type="password" id="regPassword" required placeholder="At least 6 characters"/>
+          <label>Role</label>
+          <select id="regRole">
+            <option value="Learner">Learner</option>
+            <option value="Coach">Coach</option>
+            <option value="Educator">Educator</option>
+            <option value="Admin">Admin</option>
+          </select>
+          <button class="auth-submit" type="submit">Create account</button>
+          <div class="form-msg" id="registerMsg"></div>
+        </form>
+        <p class="switch-line">Already registered? <button onclick="flipAuth(false)">Sign in</button></p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===================== APP / DASHBOARD ===================== -->
+<section class="app-section" id="view-app">
+  <div class="app-header">
+    <div>
+      <p class="eyebrow">Dashboard</p>
+      <h2 class="who">Signed in as <b id="whoName">—</b></h2>
+    </div>
+    <div style="display:flex; align-items:center; gap:14px;">
+      <span class="role-pill" id="whoRole">—</span>
+      <button class="logout-btn" onclick="logout()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="tilt-card">
+      <h3>Your profile</h3>
+      <form id="profileForm" class="profile-form">
+        <label>Experience level</label>
+        <select id="pfExperience">
+          <option value="Beginner">Beginner</option>
+          <option value="Intermediate">Intermediate</option>
+          <option value="Advanced">Advanced</option>
+        </select>
+        <label>Goals</label>
+        <textarea id="pfGoals" rows="3" placeholder="e.g. Win 3 inter-college debates this year"></textarea>
+        <label>Preferred topics</label>
+        <input type="text" id="pfTopics" placeholder="e.g. AI Ethics, Climate Policy"/>
+        <button class="auth-submit" type="submit" style="background:var(--brass); color:#1A1400;">Save profile</button>
+        <div class="save-note" id="profileSaved">Profile saved.</div>
+      </form>
+    </div>
+
+    <div class="tilt-card">
+      <h3>Role-restricted routes</h3>
+      <p style="color:var(--mist); font-size:13px; margin:-8px 0 0;">Live calls against the API with your current token — this is the role-based access control actually working, not a mock.</p>
+      <div class="access-grid">
+        <div class="access-row"><div><div class="name">Learner dashboard</div><div class="sub">GET /learner/dashboard</div></div><span class="badge pending" id="badge-learner">Untested</span></div>
+        <div class="access-row"><div><div class="name">Coach dashboard</div><div class="sub">GET /coach/dashboard</div></div><span class="badge pending" id="badge-coach">Untested</span></div>
+        <div class="access-row"><div><div class="name">Educator dashboard</div><div class="sub">GET /educator/dashboard</div></div><span class="badge pending" id="badge-educator">Untested</span></div>
+        <div class="access-row"><div><div class="name">Admin: list users</div><div class="sub">GET /admin/users</div></div><span class="badge pending" id="badge-admin">Untested</span></div>
+      </div>
+      <button class="try-btn" onclick="testAllRoutes()">Test all routes with my token</button>
+    </div>
+
+    <div class="tilt-card" style="grid-column: 1 / -1;">
+      <h3>Practice Session: AI Coach</h3>
+      <p style="color:var(--mist); font-size:13px; margin:-8px 0 16px;">Draft your argument and our Agentic AI will analyze it across the 4-point framework.</p>
+      <form id="debateForm" class="profile-form">
+        <label>Topic</label>
+        <input type="text" id="dbTopic" placeholder="e.g. Universal Basic Income" required />
+        <label>Your Argument</label>
+        <textarea id="dbArgument" rows="5" placeholder="State your claim, provide evidence, address rebuttals, and conclude..." required></textarea>
+        <button class="auth-submit" type="submit" id="dbBtn">Analyze Argument</button>
+        <div class="form-msg" id="dbMsg"></div>
+      </form>
+      
+      <div id="analysisResult" style="display:none; margin-top:20px; border-top:1px solid #ffffff14; padding-top:20px;">
+        <h4 style="font-family:'Fraunces',serif; font-weight:500; font-size:18px; margin:0 0 10px; color:var(--brass);">Coach Feedback</h4>
+        <p id="fbText" style="font-size:14px; color:var(--parchment); margin:10px 0; line-height:1.5;"></p>
+        <div class="access-grid" style="margin-top:16px;">
+          <div class="access-row"><div><div class="name">Claim</div></div><span class="badge" id="scClaim">0/100</span></div>
+          <div class="access-row"><div><div class="name">Evidence</div></div><span class="badge" id="scEvidence">0/100</span></div>
+          <div class="access-row"><div><div class="name">Rebuttal</div></div><span class="badge" id="scRebuttal">0/100</span></div>
+          <div class="access-row"><div><div class="name">Verdict</div></div><span class="badge" id="scVerdict">0/100</span></div>
+        </div>
+        <div id="fbFallacies" style="margin-top:16px; font-size:12px; color:var(--danger); font-family:'JetBrains Mono', monospace; padding:10px; background:#E4667A1a; border:1px solid #E4667A44; border-radius:8px; display:none;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const API_BASE = "http://127.0.0.1:8000";
+  let TOKEN = localStorage.getItem("dc_token") || null;
+
+  // ---------- view switching ----------
+  function showView(name){
+    document.getElementById('view-landing').style.display = (name==='landing') ? 'block':'none';
+    document.getElementById('view-auth').classList.toggle('active', name==='auth');
+    document.getElementById('view-app').classList.toggle('active', name==='app');
+  }
+  function openAuth(mode){
+    showView('auth');
+    flipAuth(mode==='register');
+  }
+  function flipAuth(toRegister){
+    document.getElementById('authCard').classList.toggle('flipped', toRegister);
+  }
+
+  // ---------- auth ----------
+  document.getElementById('loginForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const msg = document.getElementById('loginMsg');
+    msg.className = 'form-msg';
+    const body = new URLSearchParams();
+    body.set('username', document.getElementById('loginEmail').value);
+    body.set('password', document.getElementById('loginPassword').value);
+    try{
+      const res = await fetch(`${API_BASE}/login`, { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body });
+      const data = await res.json();
+      if(!res.ok) throw new Error(data.detail || 'Login failed');
+      TOKEN = data.access_token;
+      localStorage.setItem('dc_token', TOKEN);
+      await enterApp();
+    }catch(err){
+      msg.textContent = err.message; msg.classList.add('show','err');
+    }
+  });
+
+  document.getElementById('registerForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const msg = document.getElementById('registerMsg');
+    msg.className = 'form-msg';
+    const payload = {
+      name: document.getElementById('regName').value,
+      email: document.getElementById('regEmail').value,
+      password: document.getElementById('regPassword').value,
+      role: document.getElementById('regRole').value,
+    };
+    try{
+      const res = await fetch(`${API_BASE}/register`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+      const data = await res.json();
+      if(!res.ok) throw new Error(data.detail || 'Registration failed');
+      msg.textContent = `Account created for ${data.name} (${data.role}). Signing you in…`;
+      msg.classList.add('show','ok');
+      document.getElementById('loginEmail').value = payload.email;
+      document.getElementById('loginPassword').value = payload.password;
+      setTimeout(()=>{ document.getElementById('loginForm').requestSubmit(); flipAuth(false); }, 700);
+    }catch(err){
+      msg.textContent = err.message; msg.classList.add('show','err');
+    }
+  });
+
+  async function enterApp(){
+    const res = await fetch(`${API_BASE}/me`, { headers:{ 'Authorization':`Bearer ${TOKEN}` }});
+    if(!res.ok){ logout(); return; }
+    const me = await res.json();
+    document.getElementById('whoName').textContent = me.name;
+    document.getElementById('whoRole').textContent = me.role;
+    await loadProfile();
+    resetBadges();
+    showView('app');
+  }
+
+  function logout(){
+    TOKEN = null;
+    localStorage.removeItem('dc_token');
+    showView('landing');
+  }
+
+  // ---------- profile ----------
+  async function loadProfile(){
+    const res = await fetch(`${API_BASE}/profile`, { headers:{ 'Authorization':`Bearer ${TOKEN}` }});
+    if(res.ok){
+      const p = await res.json();
+      document.getElementById('pfExperience').value = p.experience_level || 'Beginner';
+      document.getElementById('pfGoals').value = p.goals || '';
+      document.getElementById('pfTopics').value = p.preferred_topics || '';
+    }
+  }
+  document.getElementById('profileForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const payload = {
+      experience_level: document.getElementById('pfExperience').value,
+      goals: document.getElementById('pfGoals').value,
+      preferred_topics: document.getElementById('pfTopics').value,
+    };
+    const res = await fetch(`${API_BASE}/profile`, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${TOKEN}` },
+      body: JSON.stringify(payload)
+    });
+    const note = document.getElementById('profileSaved');
+    if(res.ok){ note.classList.add('show'); setTimeout(()=>note.classList.remove('show'), 2200); }
+  });
+
+  // ---------- role-restricted route tester ----------
+  function resetBadges(){
+    ['learner','coach','educator','admin'].forEach(k=>{
+      const b = document.getElementById(`badge-${k}`);
+      b.textContent = 'Untested'; b.className = 'badge pending';
+    });
+  }
+  async function testRoute(key, path){
+    const b = document.getElementById(`badge-${key}`);
+    try{
+      const res = await fetch(`${API_BASE}${path}`, { headers:{ 'Authorization':`Bearer ${TOKEN}` }});
+      if(res.ok){ b.textContent = '200 · Allowed'; b.className = 'badge ok'; }
+      else{ b.textContent = `${res.status} · Denied`; b.className = 'badge no'; }
+    }catch(err){ b.textContent = 'Error'; b.className = 'badge no'; }
+  }
+  async function testAllRoutes(){
+    await testRoute('learner','/learner/dashboard');
+    await testRoute('coach','/coach/dashboard');
+    await testRoute('educator','/educator/dashboard');
+    await testRoute('admin','/admin/users');
+  }
+
+  // ---------- Agentic AI Debate Coach ----------
+  document.getElementById('debateForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const btn = document.getElementById('dbBtn');
+    const msg = document.getElementById('dbMsg');
+    const resDiv = document.getElementById('analysisResult');
+    const fallaciesDiv = document.getElementById('fbFallacies');
+    
+    btn.textContent = 'Analyzing...';
+    btn.style.opacity = '0.7';
+    msg.className = 'form-msg';
+    resDiv.style.display = 'none';
+    
+    const payload = {
+      topic: document.getElementById('dbTopic').value,
+      argument_text: document.getElementById('dbArgument').value
+    };
+    
+    try {
+      const res = await fetch(`${API_BASE}/debate/analyze`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if(!res.ok) throw new Error(data.detail || 'Analysis failed');
+      
+      document.getElementById('fbText').textContent = data.feedback;
+      
+      const setScore = (id, score) => {
+        const el = document.getElementById(id);
+        el.textContent = `${score}/100`;
+        el.className = 'badge';
+        if(score >= 70) el.classList.add('ok');
+        else if(score >= 40) el.classList.add('pending');
+        else el.classList.add('no');
+      };
+      
+      setScore('scClaim', data.claim_score);
+      setScore('scEvidence', data.evidence_score);
+      setScore('scRebuttal', data.rebuttal_score);
+      setScore('scVerdict', data.verdict_score);
+      
+      if (data.fallacies_detected && data.fallacies_detected.length > 0) {
+        fallaciesDiv.style.display = 'block';
+        fallaciesDiv.innerHTML = `<strong>Logical Fallacies Detected:</strong><br/> • ` + data.fallacies_detected.join('<br/> • ');
+      } else {
+        fallaciesDiv.style.display = 'none';
+      }
+      
+      resDiv.style.display = 'block';
+    } catch (err) {
+      msg.textContent = err.message; 
+      msg.classList.add('show','err');
+    } finally {
+      btn.textContent = 'Analyze Argument';
+      btn.style.opacity = '1';
+    }
+  });
+
+  // ---------- 3D tilt interaction on dashboard cards ----------
+  document.querySelectorAll('.tilt-card').forEach(card=>{
+    card.addEventListener('mousemove', (e)=>{
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left)/r.width - 0.5;
+      const y = (e.clientY - r.top)/r.height - 0.5;
+      card.style.transform = `perspective(900px) rotateY(${x*6}deg) rotateX(${-y*6}deg) translateZ(4px)`;
+      card.style.boxShadow = `${-x*24}px ${16-y*10}px 40px #00000055`;
+    });
+    card.addEventListener('mouseleave', ()=>{
+      card.style.transform = 'perspective(900px) rotateY(0) rotateX(0)';
+      card.style.boxShadow = 'none';
+    });
+  });
+
+  // ---------- boot ----------
+  (async function(){
+    showView('landing');
+    if(TOKEN){ await enterApp(); }
+  })();
+</script>
+</body>
+</html>
