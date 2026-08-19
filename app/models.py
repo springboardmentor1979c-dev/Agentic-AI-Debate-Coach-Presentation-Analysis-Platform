@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -16,6 +16,12 @@ class User(Base):
         "Profile",
         back_populates="user",
         uselist=False,
+        cascade="all, delete"
+    )
+
+    debates = relationship(
+        "DebateHistory",
+        back_populates="user",
         cascade="all, delete"
     )
 
@@ -38,4 +44,28 @@ class Profile(Base):
     user = relationship(
         "User",
         back_populates="profile"
+    )
+
+
+class DebateHistory(Base):
+    __tablename__ = "debate_history"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    topic = Column(String(255))
+
+    ai_argument = Column(Text)
+
+    user_argument = Column(Text)
+
+    ai_feedback = Column(Text)
+
+    user_id = Column(
+        Integer,
+        ForeignKey("users.id")
+    )
+
+    user = relationship(
+        "User",
+        back_populates="debates"
     )
