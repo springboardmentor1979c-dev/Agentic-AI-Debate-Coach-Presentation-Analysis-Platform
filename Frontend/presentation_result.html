@@ -26,6 +26,55 @@
         <p><strong>Uploaded By</strong></p>
         <p id="uploadedby"></p>
 
+        <hr>
+
+        <h2>📈 Presentation Metrics</h2>
+
+        <p>
+            <strong>Word Count:</strong>
+            <span id="wordCount"></span>
+        </p>
+
+        <p>
+            <strong>Speech Pace:</strong>
+            <span id="speechPace"></span> WPM
+        </p>
+
+        <p>
+            <strong>Filler Words:</strong>
+            <span id="fillerWords"></span>
+        </p>
+
+        <p>
+            <strong>Confidence:</strong>
+            <span id="confidenceScore"></span>/100
+        </p>
+
+        <p>
+            <strong>Clarity:</strong>
+            <span id="clarityScore"></span>/100
+        </p>
+
+        <p>
+            <strong>Audience Engagement:</strong>
+            <span id="engagementScore"></span>/100
+        </p>
+
+        <h2>
+            Overall Presentation Score:
+            <span id="overallScore"></span>/100
+        </h2>
+
+        <hr>
+
+        <h3>💪 Strengths</h3>
+        <ul id="strengths"></ul>
+
+        <h3>💡 Recommendations</h3>
+        <ul id="recommendations"></ul>
+
+        <hr>
+
         <p><strong>Extracted Preview</strong></p>
         <p id="preview"></p>
 
@@ -42,6 +91,79 @@
     </div>
 
 </div>
+
+<script>
+
+const result = JSON.parse(
+    localStorage.getItem("presentation_result")
+);
+
+if (result) {
+
+    document.getElementById("filename").textContent =
+        result.filename || "N/A";
+
+    document.getElementById("uploadedby").textContent =
+        result.uploaded_by || "N/A";
+
+    document.getElementById("preview").textContent =
+        result.preview || "No preview available.";
+
+    const metrics = result.presentation_metrics || {};
+
+    document.getElementById("wordCount").textContent =
+        metrics.word_count ?? 0;
+
+    document.getElementById("speechPace").textContent =
+        metrics.speech_pace_wpm ?? 0;
+
+    document.getElementById("fillerWords").textContent =
+        metrics.filler_word_count ?? 0;
+
+    document.getElementById("confidenceScore").textContent =
+        metrics.confidence_score ?? 0;
+
+    document.getElementById("clarityScore").textContent =
+        metrics.clarity_score ?? 0;
+
+    document.getElementById("engagementScore").textContent =
+        metrics.audience_engagement_score ?? 0;
+
+    document.getElementById("overallScore").textContent =
+        metrics.overall_presentation_score ?? 0;
+
+    const strengthsList =
+        document.getElementById("strengths");
+
+    (result.strengths || []).forEach(function(strength) {
+
+        const li = document.createElement("li");
+        li.textContent = strength;
+
+        strengthsList.appendChild(li);
+
+    });
+
+    const recommendationsList =
+        document.getElementById("recommendations");
+
+    (result.recommendations || []).forEach(function(recommendation) {
+
+        const li = document.createElement("li");
+        li.textContent = recommendation;
+
+        recommendationsList.appendChild(li);
+
+    });
+
+} else {
+
+    document.getElementById("preview").textContent =
+        "No presentation analysis result found.";
+
+}
+
+</script>
 
 <script src="js/api.js"></script>
 <script src="js/scripts.js"></script>

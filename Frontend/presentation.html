@@ -34,14 +34,52 @@
         <br><br>
 
         <button
-            type="button"
-            onclick="uploadPresentation()">
-
+    type="button"
+    onclick="uploadPresentation(); return false;">
+    
             🚀 Analyze Presentation
 
         </button>
 
-        <br><br>
+        <div id="presentationResult" style="display: none; margin-top: 30px;">
+
+            <hr>
+
+            <h2>📊 Presentation Analysis Results</h2>
+
+            <p>
+                <strong>Speech Pace:</strong>
+                <span id="speechPace"></span> WPM
+            </p>
+
+            <p>
+                <strong>Filler Words:</strong>
+                <span id="fillerWords"></span>
+            </p>
+
+            <p>
+                <strong>Confidence:</strong>
+                <span id="confidenceScore"></span>/100
+            </p>
+
+            <p>
+                <strong>Clarity:</strong>
+                <span id="clarityScore"></span>/100
+            </p>
+
+            <p>
+                <strong>Audience Engagement:</strong>
+                <span id="engagementScore"></span>/100
+            </p>
+
+            <h3>
+                Overall Score:
+                <span id="overallScore"></span>/100
+            </h3>
+
+        </div>
+
+        <br>
 
         <button
             type="button"

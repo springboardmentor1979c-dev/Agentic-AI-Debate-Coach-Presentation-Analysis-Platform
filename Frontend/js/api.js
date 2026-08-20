@@ -120,58 +120,62 @@ async function submitDebate() {
     }
 
     const topic = document.getElementById("topic").value;
-const argument = document.getElementById("argument").value;
+    const argument = document.getElementById("argument").value;
 
-if (topic === "" || argument.trim() === "") {
-    alert("Please select a topic and enter your argument.");
-    return;
-}
+    if (topic === "" || argument.trim() === "") {
+        alert("Please select a topic and enter your argument.");
+        return;
+    }
 
     const response = await fetch(`${BASE_URL}/debates`, {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-    },
-    body: JSON.stringify({
-        topic: topic,
-        argument: argument
-    })
-});
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+
+        body: JSON.stringify({
+            topic: topic,
+            argument: argument
+        })
+    });
 
     const data = await response.json();
 
     if (response.ok) {
 
-    alert(
-        `✅ ${data.message}
+        const breakdown = data.performance_breakdown;
 
-Score: ${data.score}/100
+        document.getElementById("argumentQuality").innerHTML =
+            `<span class="badge bg-primary">${breakdown.argument_quality}/100</span>`;
 
-Strengths:
-• ${data.strengths.join("\n• ")}
+        document.getElementById("evidenceUsage").innerHTML =
+            `<span class="badge bg-primary">${breakdown.evidence_usage}/100</span>`;
 
-Logical Fallacy:
-${data.logical_fallacy}
+        document.getElementById("logicalConsistency").innerHTML =
+            `<span class="badge bg-primary">${breakdown.logical_consistency}/100</span>`;
 
-Counter Argument:
-${data.counter_argument}
+        document.getElementById("rebuttalEffectiveness").innerHTML =
+            `<span class="badge bg-primary">${breakdown.rebuttal_effectiveness}/100</span>`;
 
-Suggestion:
-${data.suggestion}`
-    );
+        document.getElementById("communicationSkills").innerHTML =
+            `<span class="badge bg-primary">${breakdown.communication_skills}/100</span>`;
 
-    document.getElementById("topic").value = "";
-    document.getElementById("argument").value = "";
+        document.getElementById("analysisResult").classList.remove("d-none");
 
-    window.location.href = "dashboard.html";
+        window.scrollTo({
+            top: document.getElementById("analysisResult").offsetTop,
+            behavior: "smooth"
+        });
 
-} else {
+    } else {
 
-    alert(data.detail);
+        alert(data.detail || "Failed to submit debate.");
 
+    }
 }
-}
+
 // -------------------- PRESENTATION UPLOAD --------------------
 
 async function uploadPresentation() {
@@ -220,16 +224,45 @@ async function uploadPresentation() {
             JSON.stringify(data)
         );
 
-        // Redirect
-       window.open("presentation_result.html", "_self");
+        // Display result on the same page
+        const result = data.presentation_metrics || {};
+
+        document.getElementById("speechPace").textContent =
+            result.speech_pace_wpm ?? 0;
+
+        document.getElementById("fillerWords").textContent =
+            result.filler_word_count ?? 0;
+
+        document.getElementById("confidenceScore").textContent =
+            result.confidence_score ?? 0;
+
+        document.getElementById("clarityScore").textContent =
+            result.clarity_score ?? 0;
+
+        document.getElementById("engagementScore").textContent =
+            result.audience_engagement_score ?? 0;
+
+        document.getElementById("overallScore").textContent =
+            result.overall_presentation_score ?? 0;
+
+        document.getElementById("presentationResult").style.display =
+            "block";
+
+        window.scrollTo({
+            top: document.getElementById("presentationResult").offsetTop,
+            behavior: "smooth"
+        });
 
     } catch (error) {
 
         console.error("Presentation upload error:", error);
-        alert("Something went wrong while analyzing the presentation.");
 
+        alert(
+            "Something went wrong while analyzing the presentation."
+        );
     }
 }
+
 // ---------------- Presentation Result ----------------
 
 if (window.location.pathname.includes("presentation_result.html")) {
