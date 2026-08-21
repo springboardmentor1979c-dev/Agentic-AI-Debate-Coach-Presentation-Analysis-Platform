@@ -127,51 +127,54 @@ async function submitDebate() {
         return;
     }
 
-    const response = await fetch(`${BASE_URL}/debates`, {
-        method: "POST",
+    try {
 
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-        },
+        const response = await fetch(`${BASE_URL}/debates`, {
+            method: "POST",
 
-        body: JSON.stringify({
-            topic: topic,
-            argument: argument
-        })
-    });
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
 
-    const data = await response.json();
-
-    if (response.ok) {
-
-        const breakdown = data.performance_breakdown;
-
-        document.getElementById("argumentQuality").innerHTML =
-            `<span class="badge bg-primary">${breakdown.argument_quality}/100</span>`;
-
-        document.getElementById("evidenceUsage").innerHTML =
-            `<span class="badge bg-primary">${breakdown.evidence_usage}/100</span>`;
-
-        document.getElementById("logicalConsistency").innerHTML =
-            `<span class="badge bg-primary">${breakdown.logical_consistency}/100</span>`;
-
-        document.getElementById("rebuttalEffectiveness").innerHTML =
-            `<span class="badge bg-primary">${breakdown.rebuttal_effectiveness}/100</span>`;
-
-        document.getElementById("communicationSkills").innerHTML =
-            `<span class="badge bg-primary">${breakdown.communication_skills}/100</span>`;
-
-        document.getElementById("analysisResult").classList.remove("d-none");
-
-        window.scrollTo({
-            top: document.getElementById("analysisResult").offsetTop,
-            behavior: "smooth"
+            body: JSON.stringify({
+                topic: topic,
+                argument: argument
+            })
         });
 
-    } else {
+        const data = await response.json();
 
-        alert(data.detail || "Failed to submit debate.");
+        if (response.ok) {
+
+            // Save complete debate result
+            localStorage.setItem(
+                "debate_result",
+                JSON.stringify({
+                    topic: topic,
+                    argument: argument,
+                    score: data.score,
+                    logical_fallacy: data.logical_fallacy,
+                    counter_argument: data.counter_argument,
+                    suggestion: data.suggestion,
+                    strengths: data.strengths || []
+                })
+            );
+
+            // Go to results page
+            window.location.href = "results.html";
+
+        } else {
+
+            alert(data.detail || "Failed to submit debate.");
+
+        }
+
+    } catch (error) {
+
+        console.error("Debate submission error:", error);
+
+        alert("Unable to connect to the server. Please make sure the backend is running.");
 
     }
 }

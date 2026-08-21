@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Debate Results</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <div class="container">
 
     <div class="card">
 
-        <h1>AI Debate Analysis</h1>
+        <h1>🤖 AI Debate Analysis</h1>
 
         <h2 id="score"></h2>
 
@@ -28,6 +32,26 @@
         <p><strong>Suggestion:</strong></p>
         <p id="suggestion"></p>
 
+
+        <hr>
+
+        <h2>🎯 Personalized Coaching</h2>
+
+        <h3>💪 Strengths</h3>
+        <ul id="strengths"></ul>
+
+        <h3>💡 Recommendations</h3>
+        <ul id="recommendations"></ul>
+
+        <h3>📝 Recommended Exercises</h3>
+        <ul id="exercises"></ul>
+
+        <h3>📚 Learning Path</h3>
+        <ol id="learningPath"></ol>
+
+
+        <br>
+
         <button onclick="window.location.href='dashboard.html'">
             Back to Dashboard
         </button>
@@ -36,7 +60,154 @@
 
 </div>
 
-<script src="script.js"></script>
+
+<script>
+
+async function loadResults() {
+
+    const result = JSON.parse(
+        localStorage.getItem("debate_result")
+    );
+
+    if (!result) {
+        alert("No debate result found.");
+        window.location.href = "debate.html";
+        return;
+    }
+
+
+    // ---------------- RESULT ----------------
+
+    document.getElementById("score").textContent =
+        "Overall Score: " + result.score + "/100";
+
+    document.getElementById("topic").textContent =
+        result.topic || "";
+
+    document.getElementById("fallacy").textContent =
+        result.logical_fallacy || "None Detected";
+
+    document.getElementById("counter").textContent =
+        result.counter_argument || "";
+
+    document.getElementById("suggestion").textContent =
+        result.suggestion || "";
+
+
+    // ---------------- COACHING ----------------
+
+    const token = localStorage.getItem("token");
+
+    try {
+
+        const response = await fetch(
+            "http://127.0.0.1:8000/coaching/recommendations",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token
+                },
+
+                body: JSON.stringify({
+                    topic: result.topic,
+                    argument: result.argument,
+                    score: result.score,
+                    logical_fallacy:
+                        result.logical_fallacy || "None Detected"
+                })
+            }
+        );
+
+
+        const coaching = await response.json();
+
+
+        if (!response.ok) {
+            throw new Error(
+                coaching.detail ||
+                "Coaching request failed."
+            );
+        }
+
+
+        // Strengths
+        coaching.strengths.forEach(function(item) {
+
+            const li = document.createElement("li");
+
+            li.textContent = item;
+
+            document.getElementById(
+                "strengths"
+            ).appendChild(li);
+
+        });
+
+
+        // Recommendations
+        coaching.recommendations.forEach(function(item) {
+
+            const li = document.createElement("li");
+
+            li.textContent = item;
+
+            document.getElementById(
+                "recommendations"
+            ).appendChild(li);
+
+        });
+
+
+        // Exercises
+        coaching.recommended_exercises.forEach(function(item) {
+
+            const li = document.createElement("li");
+
+            li.textContent = item;
+
+            document.getElementById(
+                "exercises"
+            ).appendChild(li);
+
+        });
+
+
+        // Learning path
+        coaching.learning_path.forEach(function(item) {
+
+            const li = document.createElement("li");
+
+            li.textContent = item;
+
+            document.getElementById(
+                "learningPath"
+            ).appendChild(li);
+
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Coaching error:",
+            error
+        );
+
+        document.getElementById(
+            "recommendations"
+        ).innerHTML =
+            "<li>Coaching could not be loaded.</li>";
+
+    }
+
+}
+
+
+loadResults();
+
+</script>
 
 </body>
 </html>

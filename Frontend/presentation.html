@@ -34,18 +34,32 @@
         <br><br>
 
         <button
-    type="button"
-    onclick="uploadPresentation(); return false;">
-    
+            type="button"
+            id="analyzeButton"
+            onclick="uploadPresentation()">
+
             🚀 Analyze Presentation
 
         </button>
 
-        <div id="presentationResult" style="display: none; margin-top: 30px;">
+
+        <div
+            id="presentationResult"
+            style="display: none; margin-top: 30px;">
 
             <hr>
 
             <h2>📊 Presentation Analysis Results</h2>
+
+            <p>
+                <strong>File Name:</strong>
+                <span id="filename"></span>
+            </p>
+
+            <p>
+                <strong>Word Count:</strong>
+                <span id="wordCount"></span>
+            </p>
 
             <p>
                 <strong>Speech Pace:</strong>
@@ -72,12 +86,28 @@
                 <span id="engagementScore"></span>/100
             </p>
 
-            <h3>
-                Overall Score:
+            <h2>
+                Overall Presentation Score:
                 <span id="overallScore"></span>/100
-            </h3>
+            </h2>
+
+
+            <h3>💪 Strengths</h3>
+
+            <ul id="strengths"></ul>
+
+
+            <h3>💡 Recommendations</h3>
+
+            <ul id="recommendations"></ul>
+
+
+            <h3>📝 Extracted Preview</h3>
+
+            <p id="preview"></p>
 
         </div>
+
 
         <br>
 
@@ -93,7 +123,200 @@
 
 </div>
 
-<script src="js/api.js"></script>
+
+<script>
+
+async function uploadPresentation() {
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        alert("Please login first.");
+        window.location.href = "login.html";
+        return;
+    }
+
+
+    const fileInput =
+        document.getElementById("presentationFile");
+
+    if (!fileInput || fileInput.files.length === 0) {
+
+        alert("Please select a presentation.");
+
+        return;
+    }
+
+
+    const button =
+        document.getElementById("analyzeButton");
+
+    button.disabled = true;
+    button.innerText = "⏳ Analyzing...";
+
+
+    const formData = new FormData();
+
+    formData.append(
+        "file",
+        fileInput.files[0]
+    );
+
+
+    try {
+
+        const response = await fetch(
+            "http://127.0.0.1:8000/presentation/upload",
+            {
+                method: "POST",
+
+                headers: {
+                    "Authorization": "Bearer " + token
+                },
+
+                body: formData
+            }
+        );
+
+
+        const data = await response.json();
+
+
+        if (!response.ok) {
+
+            alert(
+                data.detail ||
+                "Presentation analysis failed."
+            );
+
+            return;
+        }
+
+
+        // Save result
+        localStorage.setItem(
+            "presentation_result",
+            JSON.stringify(data)
+        );
+
+
+        // Presentation metrics
+        const metrics =
+            data.presentation_metrics || {};
+
+
+        document.getElementById("filename").textContent =
+            data.filename || fileInput.files[0].name;
+
+
+        document.getElementById("wordCount").textContent =
+            metrics.word_count ?? 0;
+
+
+        document.getElementById("speechPace").textContent =
+            metrics.speech_pace_wpm ?? 0;
+
+
+        document.getElementById("fillerWords").textContent =
+            metrics.filler_word_count ?? 0;
+
+
+        document.getElementById("confidenceScore").textContent =
+            metrics.confidence_score ?? 0;
+
+
+        document.getElementById("clarityScore").textContent =
+            metrics.clarity_score ?? 0;
+
+
+        document.getElementById("engagementScore").textContent =
+            metrics.audience_engagement_score ?? 0;
+
+
+        document.getElementById("overallScore").textContent =
+            metrics.overall_presentation_score ?? 0;
+
+
+        // Strengths
+        const strengths =
+            document.getElementById("strengths");
+
+        strengths.innerHTML = "";
+
+        (data.strengths || []).forEach(function(item) {
+
+            const li =
+                document.createElement("li");
+
+            li.textContent = item;
+
+            strengths.appendChild(li);
+
+        });
+
+
+        // Recommendations
+        const recommendations =
+            document.getElementById("recommendations");
+
+        recommendations.innerHTML = "";
+
+        (data.recommendations || []).forEach(function(item) {
+
+            const li =
+                document.createElement("li");
+
+            li.textContent = item;
+
+            recommendations.appendChild(li);
+
+        });
+
+
+        // Preview
+        document.getElementById("preview").textContent =
+            data.preview || "No preview available.";
+
+
+        // Show results
+        document.getElementById(
+            "presentationResult"
+        ).style.display = "block";
+
+
+        // Scroll to results
+        document.getElementById(
+            "presentationResult"
+        ).scrollIntoView({
+            behavior: "smooth"
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Presentation analysis error:",
+            error
+        );
+
+        alert(
+            "Unable to connect to the presentation analysis server."
+        );
+
+    } finally {
+
+        button.disabled = false;
+
+        button.innerText =
+            "🚀 Analyze Presentation";
+
+    }
+
+}
+
+</script>
+
 
 </body>
+
 </html>
