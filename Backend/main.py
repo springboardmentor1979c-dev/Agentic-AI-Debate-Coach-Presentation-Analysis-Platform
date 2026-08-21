@@ -709,7 +709,7 @@ def leaderboard(db: Session = Depends(get_db)):
 def coach_feedback(
     current_user: dict = Depends(auth.get_current_user)
 ):
-    if current_user["role"] not in ["Coach", "Admin"]:
+    if current_user["role"].lower() not in ["coach", "admin"]:
         raise HTTPException(
             status_code=403,
             detail="Access denied. Only Coach or Admin can provide feedback."
@@ -728,7 +728,7 @@ def coach_feedback(
 def educator_content(
     current_user: dict = Depends(auth.get_current_user)
 ):
-    if current_user["role"] not in ["Educator", "Admin"]:
+    if current_user["role"].lower() not in ["educator", "admin"]:
         raise HTTPException(
             status_code=403,
             detail="Access denied. Only Educator or Admin can manage content."
@@ -748,7 +748,7 @@ def manage_users(
     db: Session = Depends(get_db),
     current_user: dict = Depends(auth.get_current_user)
 ):
-    if current_user["role"] != "Admin":
+    if current_user["role"].lower() != "admin":
         raise HTTPException(
             status_code=403,
             detail="Access denied. Only Admin can manage users."

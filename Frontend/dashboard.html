@@ -4,32 +4,47 @@
 <head>
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>Dashboard - AI Debate Coach</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
 
 </head>
 
 <body class="bg-light">
 
 <nav class="navbar navbar-dark bg-dark">
+
     <div class="container">
 
         <span class="navbar-brand fw-bold">
             🎯 AI Debate Coach
         </span>
 
-        <button
-            class="btn btn-outline-light btn-sm"
-            onclick="logoutUser()">
+        <div class="d-flex align-items-center gap-2">
 
-            Logout
+            <span
+                id="roleBadge"
+                class="badge bg-primary">
+                User
+            </span>
 
-        </button>
+            <button
+                class="btn btn-outline-light btn-sm"
+                onclick="logoutUser()">
+
+                Logout
+
+            </button>
+
+        </div>
 
     </div>
+
 </nav>
 
 
@@ -43,6 +58,11 @@
 
         <p class="text-muted">
             Practice, analyze and improve your communication skills.
+        </p>
+
+        <p>
+            Logged in as:
+            <strong id="currentRole">User</strong>
         </p>
 
     </div>
@@ -99,10 +119,12 @@
     </div>
 
 
-    <!-- Features -->
+    <!-- Main Features -->
 
     <div class="row g-4">
 
+
+        <!-- Debate -->
 
         <div class="col-md-6 col-lg-3">
 
@@ -137,6 +159,8 @@
         </div>
 
 
+        <!-- Presentation -->
+
         <div class="col-md-6 col-lg-3">
 
             <div class="card shadow-sm border-0 h-100">
@@ -170,6 +194,8 @@
         </div>
 
 
+        <!-- History -->
+
         <div class="col-md-6 col-lg-3">
 
             <div class="card shadow-sm border-0 h-100">
@@ -202,6 +228,8 @@
 
         </div>
 
+
+        <!-- Leaderboard -->
 
         <div class="col-md-6 col-lg-3">
 
@@ -237,10 +265,483 @@
 
     </div>
 
+
+    <!-- ROLE-BASED TOOLS -->
+
+    <div
+        id="roleTools"
+        class="mt-5">
+
+        <div class="card shadow border-0">
+
+            <div class="card-body">
+
+                <h3 class="fw-bold text-center mb-4">
+                    🔐 Role-Based Tools
+                </h3>
+
+
+                <!-- Coach -->
+
+                <div
+                    id="coachTool"
+                    class="text-center d-none">
+
+                    <h5>
+                        🧑‍🏫 Coach Tools
+                    </h5>
+
+                    <p class="text-muted">
+                        Review debates and provide coaching feedback.
+                    </p>
+
+                    <button
+                        class="btn btn-info"
+                        onclick="openCoachTool()">
+
+                        Open Coach Tools
+
+                    </button>
+
+                </div>
+
+
+                <!-- Educator -->
+
+                <div
+                    id="educatorTool"
+                    class="text-center d-none">
+
+                    <h5>
+                        👩‍🏫 Educator Tools
+                    </h5>
+
+                    <p class="text-muted">
+                        Create and manage learning content.
+                    </p>
+
+                    <button
+                        class="btn btn-success"
+                        onclick="openEducatorTool()">
+
+                        Open Educator Tools
+
+                    </button>
+
+                </div>
+
+
+                <!-- Admin -->
+
+                <div
+                    id="adminTool"
+                    class="text-center d-none">
+
+                    <h5>
+                        🛠️ Admin Tools
+                    </h5>
+
+                    <p class="text-muted">
+                        Manage registered users and platform access.
+                    </p>
+
+                    <button
+                        class="btn btn-danger"
+                        onclick="openAdminTool()">
+
+                        Manage Users
+
+                    </button>
+
+                </div>
+
+
+                <!-- Learner -->
+
+                <div
+                    id="learnerTool"
+                    class="text-center d-none">
+
+                    <h5>
+                        🎓 Learner Tools
+                    </h5>
+
+                    <p class="text-muted">
+                        Practice debates, analyze presentations
+                        and improve your performance.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ROLE RESPONSE -->
+
+    <div
+        id="roleResponse"
+        class="alert alert-info mt-4 d-none">
+    </div>
+
+
 </div>
+
+
+<!-- Existing JavaScript files -->
 
 <script src="js/api.js"></script>
 <script src="js/scripts.js"></script>
 
+
+<!-- Role Dashboard JavaScript -->
+
+<script>
+
+function getCurrentUserFromToken() {
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        return null;
+    }
+
+    try {
+
+        const payload = token.split(".")[1];
+
+        const decoded = atob(
+            payload
+                .replace(/-/g, "+")
+                .replace(/_/g, "/")
+        );
+
+        return JSON.parse(decoded);
+
+    } catch (error) {
+
+        console.error(
+            "Unable to decode token:",
+            error
+        );
+
+        return null;
+    }
+}
+
+
+function setupRoleDashboard() {
+
+    const user = getCurrentUserFromToken();
+
+    if (!user) {
+
+        window.location.href = "index.html";
+
+        return;
+    }
+
+
+    /*
+        Normalize the role.
+
+        This makes:
+        Admin
+        admin
+        ADMIN
+
+        all work correctly.
+    */
+
+    const role =
+        String(user.role || "Learner").toLowerCase();
+
+
+    const displayRole =
+        role.charAt(0).toUpperCase() +
+        role.slice(1);
+
+
+    document.getElementById(
+        "roleBadge"
+    ).textContent = displayRole;
+
+
+    document.getElementById(
+        "currentRole"
+    ).textContent = displayRole;
+
+
+    /*
+        Hide every role section first.
+    */
+
+    document.getElementById(
+        "coachTool"
+    ).classList.add("d-none");
+
+
+    document.getElementById(
+        "educatorTool"
+    ).classList.add("d-none");
+
+
+    document.getElementById(
+        "adminTool"
+    ).classList.add("d-none");
+
+
+    document.getElementById(
+        "learnerTool"
+    ).classList.add("d-none");
+
+
+    /*
+        Show the correct section.
+    */
+
+    if (role === "coach") {
+
+        document.getElementById(
+            "coachTool"
+        ).classList.remove("d-none");
+
+    }
+
+
+    else if (role === "educator") {
+
+        document.getElementById(
+            "educatorTool"
+        ).classList.remove("d-none");
+
+    }
+
+
+    else if (role === "admin") {
+
+        /*
+            Admin can use all
+            role-based tools.
+        */
+
+        document.getElementById(
+            "coachTool"
+        ).classList.remove("d-none");
+
+
+        document.getElementById(
+            "educatorTool"
+        ).classList.remove("d-none");
+
+
+        document.getElementById(
+            "adminTool"
+        ).classList.remove("d-none");
+
+    }
+
+
+    else {
+
+        /*
+            Default role = Learner
+        */
+
+        document.getElementById(
+            "learnerTool"
+        ).classList.remove("d-none");
+
+    }
+
+}
+
+
+async function openCoachTool() {
+
+    await callRoleEndpoint(
+        "/coach/feedback"
+    );
+
+}
+
+
+async function openEducatorTool() {
+
+    await callRoleEndpoint(
+        "/educator/content"
+    );
+
+}
+
+
+async function openAdminTool() {
+
+    await callRoleEndpoint(
+        "/admin/users"
+    );
+
+}
+
+
+async function callRoleEndpoint(endpoint) {
+
+    const token =
+        localStorage.getItem("token");
+
+
+    if (!token) {
+
+        alert("Please login first.");
+
+        window.location.href =
+            "index.html";
+
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                "http://127.0.0.1:8000" +
+                endpoint,
+                {
+                    method: "GET",
+
+                    headers: {
+                        "Authorization":
+                            "Bearer " + token
+                    }
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        const result =
+            document.getElementById(
+                "roleResponse"
+            );
+
+
+        result.className =
+            "alert mt-4";
+
+
+        result.classList.remove(
+            "d-none"
+        );
+
+
+        if (response.ok) {
+
+            result.classList.add(
+                "alert-success"
+            );
+
+
+            if (
+                endpoint ===
+                "/admin/users"
+            ) {
+
+                result.innerHTML =
+                    "<strong>" +
+                    "Admin Access Granted ✅" +
+                    "</strong><br>" +
+                    "Registered users: " +
+                    (data.users || []).length;
+
+            }
+
+            else {
+
+                result.innerHTML =
+                    "<strong>" +
+                    "Access Granted ✅" +
+                    "</strong><br>" +
+                    (
+                        data.message ||
+                        "Role access successful."
+                    );
+
+            }
+
+        }
+
+
+        else {
+
+            result.classList.add(
+                "alert-danger"
+            );
+
+
+            result.innerHTML =
+                "<strong>" +
+                "Access Denied ❌" +
+                "</strong><br>" +
+                (
+                    data.detail ||
+                    "You do not have permission."
+                );
+
+        }
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "Role endpoint error:",
+            error
+        );
+
+
+        const result =
+            document.getElementById(
+                "roleResponse"
+            );
+
+
+        result.className =
+            "alert alert-danger mt-4";
+
+
+        result.classList.remove(
+            "d-none"
+        );
+
+
+        result.innerHTML =
+            "<strong>" +
+            "Connection Error ❌" +
+            "</strong><br>" +
+            "Unable to connect to the backend.";
+
+    }
+
+}
+
+
+/*
+    Initialize dashboard
+    after the page loads.
+*/
+
+setupRoleDashboard();
+
+</script>
+
+
 </body>
+
 </html>
