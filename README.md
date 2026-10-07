@@ -1,33 +1,16 @@
-# AI Debate Coach API
+# React + Vite
 
-This first backend module implements the SRS authentication, role-based access, and user-profile foundation.
+This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
-## Run
+Currently, two official plugins are available:
 
-```powershell
-.\.venv\Scripts\uvicorn main:app --reload
-```
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-Set `JWT_SECRET_KEY` to a strong random value before deployment. The development fallback is only for local use.
+## React Compiler
 
-## Main endpoints
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-| Endpoint | Access | Purpose |
-| --- | --- | --- |
-| `POST /register` | Public | Register a user with `Learner`, `Coach`, `Educator`, or `Admin` role |
-| `POST /login` | Public | Validate credentials and return a bearer JWT |
-| `POST /profile` | Authenticated | Create the logged-in user's profile |
-| `GET /profile` | Authenticated | Get the logged-in user's profile |
-| `PUT /profile` | Authenticated | Update the logged-in user's profile |
-| `GET /dashboard/learner` | Learner | Learner-only example route |
-| `GET /dashboard/coach` | Coach | Coach-only example route |
-| `GET /dashboard/educator` | Educator | Educator-only example route |
-| `GET /admin/users` | Admin | Admin-only user list |
+## Expanding the Oxlint configuration
 
-Use `Authorization: Bearer <access_token>` for protected routes. Profile fields are `name`, `experience_level`, `goals`, and `preferred_topics`; the latter two are string arrays.
-
-## Verify
-
-```powershell
-.\.venv\Scripts\python.exe test_complete_flow.py
-```
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
