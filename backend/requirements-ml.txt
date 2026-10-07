@@ -1,0 +1,10 @@
+# Heavy Machine Learning and Audio/Video Analysis Dependencies
+sentence-transformers==3.0.1
+scikit-learn==1.5.0
+faiss-cpu==1.8.0
+librosa==0.10.2.post1
+soundfile==0.12.1
+SpeechRecognition==3.10.4
+openai-whisper==20231117
+opencv-python==4.9.0.80
+mediapipe==0.10.14
