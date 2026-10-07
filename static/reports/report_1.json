@@ -1,0 +1,39 @@
+{
+  "scores": {
+    "confidence_score": 70.0,
+    "clarity_score": 70.0,
+    "engagement_score": 70.0,
+    "pace_score": 88.3,
+    "overall_score": 79.43333333333334
+  },
+  "speech_metrics": {
+    "words_per_minute": 130.0,
+    "pause_count": 5,
+    "filler_words_count": 4,
+    "pitch": 140.0,
+    "volume": -20.0,
+    "confidence": 82.0
+  },
+  "video_metrics": {
+    "eye_contact": 78.5,
+    "head_pose": 85.0,
+    "gestures": "{\"count\": 12, \"description\": \"12 arm/hand gestures detected\"}",
+    "facial_expression": "{\"expression\": \"Professional / Neutral\", \"smile_detected\": true}",
+    "body_posture": "{\"posture\": \"Upright and engaged\", \"alignment\": \"centered\"}"
+  },
+  "feedback": {
+    "strengths": [
+      "Clear vocal pitch stability."
+    ],
+    "weaknesses": [
+      "Occasional lack of eye contact with camera."
+    ],
+    "suggestions": [
+      "Practice slowing down during complex technical details.",
+      "Incorporate a brief 2-second pause when transitioning between key claims.",
+      "Maintain centered eye contact with the lens during opening remarks.",
+      "Utilize open hand gestures to emphasize points instead of keeping hands closed."
+    ],
+    "slide_improvements": []
+  }
+}
